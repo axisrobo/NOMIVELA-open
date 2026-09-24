@@ -1,6 +1,6 @@
 # Status
 
-Version `1.0.0` is the stable public NOMIVELA surface: contracts, schemas, fixtures, the Go SDK, CLI, and examples.
+Version `1.1.0` is the current release of the public NOMIVELA surface: contracts, schemas, fixtures, the Go, Python, and Java SDKs, the CLI, examples, and redistributable Core binaries on the release page. `1.0.0` established the stable Go surface; `1.1.0` adds the Python and Java SDKs and publishes Core release artifacts.
 
 ## Published
 
@@ -15,6 +15,6 @@ Version `1.0.0` is the stable public NOMIVELA surface: contracts, schemas, fixtu
 - `cli/nomivela`: command-line client over the SDK
 - `examples/go/quickstart`: the full registration and enrollment path
 
-Post-`1.0.0` on `main`: the Python (`sdk/python`) and Java (`sdk/java`) SDKs are added and tested. Core produces release binaries with `SHA256SUMS` and a CycloneDX SBOM via `scripts/release.ps1`; publishing those artifacts here is the remaining step. At the `v1.0.0` tag the Go SDK is the only supported SDK.
+At `v1.1.0` the supported SDKs are Go, Python, and Java. Core release binaries with `SHA256SUMS`, a release manifest, and a CycloneDX SBOM are published as GitHub Release assets on this repository by `scripts/release.ps1` in the core repository.
 
 See `docs/roadmap.md` for the delivery plan.

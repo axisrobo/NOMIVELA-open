@@ -42,12 +42,12 @@ Open carries the public surface: OpenAPI, JSON Schema, conformance fixtures, SDK
 - Conformance suite covering schema-valid and schema-invalid cases, plus Core-side behavioral conformance for uniqueness, immutability, epochs, lifecycle, discovery, and events. Done.
 - Python SDK (`sdk/python`, standard library only). Done (post-`1.0.0`).
 - Java SDK (`sdk/java`, zero runtime dependencies, JDK 17+). Done (post-`1.0.0`).
-- Binary checksums and SBOM per release: Core produces them with `scripts/release.ps1` (`SHA256SUMS`, manifest, CycloneDX `sbom.json`); publishing them into this repository is the remaining step.
+- Binary checksums and SBOM per release: Core produces them with `scripts/release.ps1` (`SHA256SUMS`, manifest, CycloneDX `sbom.json`) and they are published as GitHub Release assets on this repository. Done (post-`1.0.0`).
 - Compatibility documentation per release. Pending.
 
 **Exit gate**
 
-- Every supported SDK passes the shared conformance suite against a released Core binary. The Go SDK is the supported SDK at `v1.0.0`; Java and Python are not claimed.
+- Every supported SDK passes the shared conformance suite against a released Core binary. At `v1.1.0` the supported SDKs are Go, Python, and Java, each covered by its own test suite.
 
 ## O3: Federation And Edge Contracts (1.5.0, 2.0.0)
 
