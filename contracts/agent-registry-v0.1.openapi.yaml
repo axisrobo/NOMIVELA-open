@@ -772,6 +772,15 @@ components:
           minLength: 1
         riskClass:
           enum: [low, medium, high, critical]
+        agentClass:
+          $ref: '#/components/schemas/AgentClass'
+        carrierRefs:
+          type: array
+          items:
+            type: string
+            minLength: 1
+    AgentClass:
+      enum: [embedded, organizational, user, asset_twin, personal_twin, service]
     Agent:
       type: object
       required: [agentRef, name, purpose, sponsorRef, ownerRef, riskClass, state, agentEpoch]
@@ -788,6 +797,12 @@ components:
           type: string
         riskClass:
           enum: [low, medium, high, critical]
+        agentClass:
+          $ref: '#/components/schemas/AgentClass'
+        carrierRefs:
+          type: array
+          items:
+            type: string
         state:
           $ref: '#/components/schemas/AgentState'
         agentEpoch:

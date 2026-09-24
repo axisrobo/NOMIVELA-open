@@ -4,6 +4,8 @@
     {"file": "valid-agent.json", "definition": "AgentRecord", "valid": true},
     {"file": "invalid-agent-ref.json", "definition": "AgentRecord", "valid": false},
     {"file": "invalid-agent-risk.json", "definition": "AgentRecord", "valid": false},
+    {"file": "valid-agent-carriers.json", "definition": "AgentRecord", "valid": true},
+    {"file": "invalid-agent-class.json", "definition": "AgentRecord", "valid": false},
     {"file": "valid-namespace.json", "definition": "Namespace", "valid": true},
     {"file": "invalid-namespace-insecure.json", "definition": "Namespace", "valid": false},
     {"file": "valid-agent-identity.json", "definition": "AgentIdentity", "valid": true},

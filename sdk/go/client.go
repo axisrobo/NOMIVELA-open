@@ -72,14 +72,16 @@ type Namespace struct {
 
 // Agent is a business Agent Record.
 type Agent struct {
-	AgentRef   string `json:"agentRef"`
-	Name       string `json:"name"`
-	Purpose    string `json:"purpose"`
-	SponsorRef string `json:"sponsorRef"`
-	OwnerRef   string `json:"ownerRef"`
-	RiskClass  string `json:"riskClass"`
-	State      string `json:"state"`
-	AgentEpoch int64  `json:"agentEpoch"`
+	AgentRef    string   `json:"agentRef"`
+	Name        string   `json:"name"`
+	Purpose     string   `json:"purpose"`
+	SponsorRef  string   `json:"sponsorRef"`
+	OwnerRef    string   `json:"ownerRef"`
+	RiskClass   string   `json:"riskClass"`
+	AgentClass  string   `json:"agentClass,omitempty"`
+	CarrierRefs []string `json:"carrierRefs,omitempty"`
+	State       string   `json:"state"`
+	AgentEpoch  int64    `json:"agentEpoch"`
 }
 
 // AgentIdentity is a security Agent Identity Record.
@@ -197,8 +199,25 @@ func (c *Client) ListNamespaces(ctx context.Context) ([]Namespace, error) {
 func (c *Client) CreateAgent(ctx context.Context, agent Agent, mut Mutation) (*Agent, error) {
 	body := struct {
 		Mutation
-		Agent
-	}{mut, agent}
+		AgentRef    string   `json:"agentRef"`
+		Name        string   `json:"name"`
+		Purpose     string   `json:"purpose"`
+		SponsorRef  string   `json:"sponsorRef"`
+		OwnerRef    string   `json:"ownerRef"`
+		RiskClass   string   `json:"riskClass"`
+		AgentClass  string   `json:"agentClass,omitempty"`
+		CarrierRefs []string `json:"carrierRefs,omitempty"`
+	}{
+		Mutation:    mut,
+		AgentRef:    agent.AgentRef,
+		Name:        agent.Name,
+		Purpose:     agent.Purpose,
+		SponsorRef:  agent.SponsorRef,
+		OwnerRef:    agent.OwnerRef,
+		RiskClass:   agent.RiskClass,
+		AgentClass:  agent.AgentClass,
+		CarrierRefs: agent.CarrierRefs,
+	}
 	var out Agent
 	if err := c.do(ctx, http.MethodPost, "/v1/agents", body, &out); err != nil {
 		return nil, err

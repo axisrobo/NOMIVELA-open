@@ -1,0 +1,11 @@
+{
+  "agentRef": "agent_edge_twin",
+  "name": "Edge Twin",
+  "purpose": "Mirror the edge gateway",
+  "sponsorRef": "org:platform",
+  "ownerRef": "user:owner-123",
+  "riskClass": "high",
+  "agentClass": "robot",
+  "state": "registered",
+  "agentEpoch": 1
+}

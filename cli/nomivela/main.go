@@ -137,12 +137,15 @@ func runAgent(ctx context.Context, args []string) error {
 		sponsor := fs.String("sponsor", "", "sponsor reference")
 		owner := fs.String("owner", "", "owner reference")
 		risk := fs.String("risk", "medium", "risk class")
+		class := fs.String("class", "", "agent class: embedded, organizational, user, asset_twin, personal_twin, service")
+		carriers := fs.String("carrier-refs", "", "comma-separated carrier references")
 		c.globalFlags(fs)
 		if err := fs.Parse(args[1:]); err != nil {
 			return err
 		}
 		result, err := c.client().CreateAgent(ctx, nomivela.Agent{
 			AgentRef: *ref, Name: *name, Purpose: *purpose, SponsorRef: *sponsor, OwnerRef: *owner, RiskClass: *risk,
+			AgentClass: *class, CarrierRefs: splitList(*carriers),
 		}, c.mutation())
 		if err != nil {
 			return err

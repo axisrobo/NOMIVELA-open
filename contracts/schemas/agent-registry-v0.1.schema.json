@@ -24,6 +24,8 @@
         "sponsorRef": {"type": "string", "minLength": 1},
         "ownerRef": {"type": "string", "minLength": 1},
         "riskClass": {"enum": ["low", "medium", "high", "critical"]},
+        "agentClass": {"enum": ["embedded", "organizational", "user", "asset_twin", "personal_twin", "service"]},
+        "carrierRefs": {"type": "array", "items": {"type": "string", "minLength": 1}},
         "state": {"enum": ["draft", "registered", "approved", "active", "suspended", "retired"]},
         "agentEpoch": {"type": "integer", "minimum": 1}
       }
