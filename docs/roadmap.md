@@ -38,13 +38,14 @@ Open carries the public surface: OpenAPI, JSON Schema, conformance fixtures, SDK
 
 **Deliverables**
 
-- Java and Python SDKs generated from and checked against the published contracts.
-- Complete conformance suite covering uniqueness, immutability, epochs, lifecycle, discovery, and events.
-- Binary checksums, SBOM, and compatibility documentation per release.
+- Go SDK and CLI covering the registration, lifecycle, containment, evidence, and discovery API. Done.
+- Conformance suite covering schema-valid and schema-invalid cases, plus Core-side behavioral conformance for uniqueness, immutability, epochs, lifecycle, discovery, and events. Done.
+- Java and Python SDKs: deferred, tracked as `1.0.x` follow-up.
+- Binary checksums, SBOM, and compatibility documentation per release: deferred until binary publishing is wired.
 
 **Exit gate**
 
-- All supported SDKs pass the shared conformance suite against a released Core binary.
+- Every supported SDK passes the shared conformance suite against a released Core binary. The Go SDK is the supported SDK at `v1.0.0`; Java and Python are not claimed.
 
 ## O3: Federation And Edge Contracts (1.5.0, 2.0.0)
 

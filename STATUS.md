@@ -1,6 +1,6 @@
 # Status
 
-Version `0.5.0` is the Developer Preview of the public NOMIVELA surface: contracts, schemas, fixtures, SDK, CLI, and examples.
+Version `1.0.0` is the stable public NOMIVELA surface: contracts, schemas, fixtures, the Go SDK, CLI, and examples.
 
 ## Published
 
@@ -12,5 +12,7 @@ Version `0.5.0` is the Developer Preview of the public NOMIVELA surface: contrac
 - `sdk/go`: standard-library Go client for namespaces, agents, identities, bindings, workloads, instances, containment, evidence, and events
 - `cli/nomivela`: command-line client over the SDK
 - `examples/go/quickstart`: the full registration and enrollment path
+
+Java and Python SDKs and binary checksum/SBOM publishing are deferred to `1.0.x`. The Go SDK is the only supported SDK at `v1.0.0`.
 
 See `docs/roadmap.md` for the delivery plan.
