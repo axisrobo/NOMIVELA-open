@@ -1,0 +1,5 @@
+{
+  "agentRef": "agent_order_processor",
+  "state": "suspended",
+  "agentEpoch": 5
+}

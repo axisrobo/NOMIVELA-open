@@ -1,0 +1,9 @@
+{
+  "namespace": "https://auth.example.com",
+  "agentId": "3f2504e0-4f89-11d3-9a0c-0305e82c3301",
+  "agentRef": "agent_order_processor",
+  "state": "revoked",
+  "identityEpoch": 3,
+  "authorityRootRef": "root:org-a",
+  "authorityRootType": "organization"
+}

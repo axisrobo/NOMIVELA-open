@@ -1,5 +1,5 @@
 // Package conformance validates the published contract fixtures against the
-// published JSON Schema.
+// published JSON Schemas.
 package conformance
 
 import (
@@ -12,11 +12,11 @@ import (
 	"github.com/santhosh-tekuri/jsonschema/v6"
 )
 
-const schemaPath = "../contracts/schemas/agent-registry-v0.1.schema.json"
-
 type manifest struct {
-	Cases []struct {
+	DefaultSchema string `json:"defaultSchema"`
+	Cases         []struct {
 		File       string `json:"file"`
+		Schema     string `json:"schema"`
 		Definition string `json:"definition"`
 		Valid      bool   `json:"valid"`
 	} `json:"cases"`
@@ -35,25 +35,31 @@ func loadManifest(t *testing.T) manifest {
 	if len(m.Cases) == 0 {
 		t.Fatal("manifest has no cases")
 	}
+	if m.DefaultSchema == "" {
+		t.Fatal("manifest is missing defaultSchema")
+	}
 	return m
 }
 
-func loadSchema(t *testing.T) any {
+func loadJSON(t *testing.T, path string) any {
 	t.Helper()
-	body, err := os.ReadFile(schemaPath)
+	body, err := os.ReadFile(path)
 	if err != nil {
-		t.Fatalf("read schema: %v", err)
+		t.Fatalf("read %s: %v", path, err)
 	}
 	doc, err := jsonschema.UnmarshalJSON(bytes.NewReader(body))
 	if err != nil {
-		t.Fatalf("decode schema: %v", err)
+		t.Fatalf("decode %s: %v", path, err)
 	}
 	return doc
 }
 
-func compileDefinition(t *testing.T, schema any, definition string) *jsonschema.Schema {
+func compileDefinition(t *testing.T, schemaPath, definition string) *jsonschema.Schema {
 	t.Helper()
-	ref, err := json.Marshal(map[string]any{"$ref": "registry.json#/$defs/" + definition})
+	schema := loadJSON(t, schemaPath)
+	resource := filepath.Base(schemaPath)
+
+	ref, err := json.Marshal(map[string]any{"$ref": resource + "#/$defs/" + definition})
 	if err != nil {
 		t.Fatalf("marshal ref: %v", err)
 	}
@@ -63,37 +69,33 @@ func compileDefinition(t *testing.T, schema any, definition string) *jsonschema.
 	}
 
 	compiler := jsonschema.NewCompiler()
-	if err := compiler.AddResource("registry.json", schema); err != nil {
-		t.Fatalf("add schema: %v", err)
+	if err := compiler.AddResource(resource, schema); err != nil {
+		t.Fatalf("add schema %s: %v", schemaPath, err)
 	}
-	if err := compiler.AddResource("check.json", refDoc); err != nil {
+	if err := compiler.AddResource("check-"+resource, refDoc); err != nil {
 		t.Fatalf("add ref: %v", err)
 	}
-	compiled, err := compiler.Compile("check.json")
+	compiled, err := compiler.Compile("check-" + resource)
 	if err != nil {
-		t.Fatalf("compile %s: %v", definition, err)
+		t.Fatalf("compile %s#%s: %v", schemaPath, definition, err)
 	}
 	return compiled
 }
 
 func TestContractFixtures(t *testing.T) {
 	m := loadManifest(t)
-	schema := loadSchema(t)
 
 	for _, tc := range m.Cases {
 		t.Run(tc.File, func(t *testing.T) {
-			compiled := compileDefinition(t, schema, tc.Definition)
-
-			body, err := os.ReadFile(filepath.Join("fixtures", tc.File))
-			if err != nil {
-				t.Fatalf("read fixture: %v", err)
+			schemaPath := tc.Schema
+			if schemaPath == "" {
+				schemaPath = m.DefaultSchema
 			}
-			instance, err := jsonschema.UnmarshalJSON(bytes.NewReader(body))
-			if err != nil {
-				t.Fatalf("decode fixture: %v", err)
-			}
+			compiled := compileDefinition(t, schemaPath, tc.Definition)
 
-			err = compiled.Validate(instance)
+			instance := loadJSON(t, filepath.Join("fixtures", tc.File))
+
+			err := compiled.Validate(instance)
 			if tc.Valid && err != nil {
 				t.Fatalf("expected valid %s fixture, got: %v", tc.Definition, err)
 			}

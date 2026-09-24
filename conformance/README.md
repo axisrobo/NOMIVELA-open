@@ -2,7 +2,7 @@
 
 This package validates the published contract fixtures against the published JSON Schema.
 
-- `fixtures/manifest.json` lists each fixture with its target `$defs` definition and whether it must be accepted or rejected.
+- `fixtures/manifest.json` lists each fixture with its target `$defs` definition and whether it must be accepted or rejected. `defaultSchema` selects the schema; a case may override it with its own `schema`, as the EIDOVELA v1 compatibility fixtures do.
 - `fixtures/valid-*.json` must validate against the definition.
 - `fixtures/invalid-*.json` must be rejected by the definition.
 

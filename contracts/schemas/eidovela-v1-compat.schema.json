@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/axisrobo/nomivela-open/contracts/schemas/eidovela-v1-compat.schema.json",
+  "title": "NOMIVELA EIDOVELA v1 compatibility projection",
+  "type": "object",
+  "$defs": {
+    "V1AgentProjection": {
+      "type": "object",
+      "required": ["agentRef", "state", "agentEpoch"],
+      "properties": {
+        "agentRef": {"type": "string", "pattern": "^agent_[A-Za-z0-9_-]+$"},
+        "state": {"enum": ["draft", "registered", "approved", "active", "suspended", "retired"]},
+        "agentEpoch": {"type": "integer", "minimum": 1}
+      }
+    },
+    "V1AgentIdentityProjection": {
+      "type": "object",
+      "required": ["namespace", "agentId", "agentRef", "state", "identityEpoch"],
+      "properties": {
+        "namespace": {"type": "string"},
+        "agentId": {"type": "string", "format": "uuid"},
+        "agentRef": {"type": "string"},
+        "state": {"enum": ["allocated", "bound", "active", "suspended", "revoked"]},
+        "identityEpoch": {"type": "integer", "minimum": 1},
+        "authorityRootRef": {"type": "string"},
+        "authorityRootType": {"type": "string"}
+      }
+    }
+  }
+}

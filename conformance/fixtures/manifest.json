@@ -1,4 +1,5 @@
 {
+  "defaultSchema": "../contracts/schemas/agent-registry-v0.1.schema.json",
   "cases": [
     {"file": "valid-agent.json", "definition": "AgentRecord", "valid": true},
     {"file": "invalid-agent-ref.json", "definition": "AgentRecord", "valid": false},
@@ -8,6 +9,24 @@
     {"file": "valid-agent-identity.json", "definition": "AgentIdentity", "valid": true},
     {"file": "invalid-agent-identity-epoch.json", "definition": "AgentIdentity", "valid": false},
     {"file": "valid-discovery.json", "definition": "DiscoveryDocument", "valid": true},
-    {"file": "invalid-discovery-missing-jwks.json", "definition": "DiscoveryDocument", "valid": false}
+    {"file": "invalid-discovery-missing-jwks.json", "definition": "DiscoveryDocument", "valid": false},
+    {
+      "file": "valid-eidovela-v1-agent.json",
+      "schema": "../contracts/schemas/eidovela-v1-compat.schema.json",
+      "definition": "V1AgentProjection",
+      "valid": true
+    },
+    {
+      "file": "invalid-eidovela-v1-agent-missing-epoch.json",
+      "schema": "../contracts/schemas/eidovela-v1-compat.schema.json",
+      "definition": "V1AgentProjection",
+      "valid": false
+    },
+    {
+      "file": "valid-eidovela-v1-identity.json",
+      "schema": "../contracts/schemas/eidovela-v1-compat.schema.json",
+      "definition": "V1AgentIdentityProjection",
+      "valid": true
+    }
   ]
 }
