@@ -1,0 +1,6 @@
+{
+  "namespace": "https://auth.example.com",
+  "registryEndpoint": "https://registry.example.com/.well-known/agent-iam",
+  "issuer": "https://idp.example.com",
+  "supportedProofProfiles": ["spiffe"]
+}

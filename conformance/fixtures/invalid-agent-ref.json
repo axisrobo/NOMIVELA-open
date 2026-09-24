@@ -1,0 +1,10 @@
+{
+  "agentRef": "order processor",
+  "name": "Order Processor",
+  "purpose": "Process approved order events",
+  "sponsorRef": "org:platform",
+  "ownerRef": "user:owner-123",
+  "riskClass": "medium",
+  "state": "registered",
+  "agentEpoch": 1
+}

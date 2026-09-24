@@ -1,0 +1,5 @@
+{
+  "namespace": "http://auth.example.com",
+  "authorityRootRef": "root:org-a",
+  "status": "active"
+}
