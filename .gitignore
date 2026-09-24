@@ -1,4 +1,5 @@
-/dist/
+/dist/*
+!/dist/README.md
 /bin/
 /coverage/
 .env
