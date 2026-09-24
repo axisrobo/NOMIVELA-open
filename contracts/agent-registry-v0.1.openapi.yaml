@@ -538,10 +538,62 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/OutboxEvent'
+  /v1/discovery-metadata:
+    put:
+      operationId: putDiscoveryMetadata
+      summary: Register or replace the published discovery document for a namespace.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/Actor'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [namespace, registryEndpoint, issuer, jwksUri, supportedProofProfiles]
+              properties:
+                namespace:
+                  type: string
+                registryEndpoint:
+                  type: string
+                  format: uri
+                issuer:
+                  type: string
+                  format: uri
+                jwksUri:
+                  type: string
+                  format: uri
+                supportedProofProfiles:
+                  type: array
+                  items:
+                    type: string
+                supportedArtifactTypes:
+                  type: array
+                  items:
+                    type: string
+                keyRotation:
+                  type: string
+                reason:
+                  type: string
+                evidenceRef:
+                  type: string
+      responses:
+        '200':
+          description: Discovery metadata registered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscoveryDocument'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
   /.well-known/agent-iam:
     get:
       operationId: getAgentIAMDiscovery
-      summary: Resolve registry discovery metadata for a namespace.
+      summary: Resolve the published discovery metadata for a namespace.
       parameters:
         - name: namespace
           in: query
