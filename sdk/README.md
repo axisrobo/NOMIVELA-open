@@ -43,3 +43,22 @@ cd sdk/python; python -m unittest discover -s tests -t .
 
 Non-2xx responses raise `nomivela.APIError` with `status`, `code`, `message`, and
 `correlation_id`.
+
+## Java
+
+`sdk/java` is a zero-runtime-dependency client (JDK 17+) built with Maven.
+
+```java
+Client client = new Client("http://localhost:8080", "user:platform");
+Namespace namespace = client.createNamespace("https://auth.example.com", "root:org-a",
+        new Mutation("bootstrap", null));
+```
+
+Run the tests:
+
+```powershell
+cd sdk/java; mvn -o test
+```
+
+Non-2xx responses raise `ApiException` with `status()`, `code()`, and
+`correlationId()`.

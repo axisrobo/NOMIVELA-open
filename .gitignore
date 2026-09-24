@@ -2,3 +2,4 @@
 /bin/
 /coverage/
 .env
+/sdk/java/target/
