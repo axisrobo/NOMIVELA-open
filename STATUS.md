@@ -15,6 +15,6 @@ Version `1.0.0` is the stable public NOMIVELA surface: contracts, schemas, fixtu
 - `cli/nomivela`: command-line client over the SDK
 - `examples/go/quickstart`: the full registration and enrollment path
 
-Post-`1.0.0` on `main`: the Python (`sdk/python`) and Java (`sdk/java`) SDKs are added and tested. Binary checksum/SBOM publishing remains deferred to a later release; at the `v1.0.0` tag the Go SDK is the only supported SDK.
+Post-`1.0.0` on `main`: the Python (`sdk/python`) and Java (`sdk/java`) SDKs are added and tested. Core produces release binaries with `SHA256SUMS` and a CycloneDX SBOM via `scripts/release.ps1`; publishing those artifacts here is the remaining step. At the `v1.0.0` tag the Go SDK is the only supported SDK.
 
 See `docs/roadmap.md` for the delivery plan.

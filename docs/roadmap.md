@@ -42,7 +42,8 @@ Open carries the public surface: OpenAPI, JSON Schema, conformance fixtures, SDK
 - Conformance suite covering schema-valid and schema-invalid cases, plus Core-side behavioral conformance for uniqueness, immutability, epochs, lifecycle, discovery, and events. Done.
 - Python SDK (`sdk/python`, standard library only). Done (post-`1.0.0`).
 - Java SDK (`sdk/java`, zero runtime dependencies, JDK 17+). Done (post-`1.0.0`).
-- Binary checksums, SBOM, and compatibility documentation per release: deferred until binary publishing is wired.
+- Binary checksums and SBOM per release: Core produces them with `scripts/release.ps1` (`SHA256SUMS`, manifest, CycloneDX `sbom.json`); publishing them into this repository is the remaining step.
+- Compatibility documentation per release. Pending.
 
 **Exit gate**
 
