@@ -40,7 +40,8 @@ Open carries the public surface: OpenAPI, JSON Schema, conformance fixtures, SDK
 
 - Go SDK and CLI covering the registration, lifecycle, containment, evidence, and discovery API. Done.
 - Conformance suite covering schema-valid and schema-invalid cases, plus Core-side behavioral conformance for uniqueness, immutability, epochs, lifecycle, discovery, and events. Done.
-- Java and Python SDKs: deferred, tracked as `1.0.x` follow-up.
+- Python SDK (`sdk/python`, standard library only). Done (post-`1.0.0`).
+- Java SDK: deferred, tracked as `1.0.x` follow-up.
 - Binary checksums, SBOM, and compatibility documentation per release: deferred until binary publishing is wired.
 
 **Exit gate**

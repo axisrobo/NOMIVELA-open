@@ -23,3 +23,23 @@ go test ./sdk/...
 
 The client maps non-2xx responses to `*nomivela.APIError` carrying the stable
 `Code` and `CorrelationID` from the contract.
+
+## Python
+
+`sdk/python` is a standard-library-only client (`urllib`) with the same behavior.
+
+```python
+from nomivela import Agent, Client, Mutation
+
+client = Client("http://localhost:8080", actor="user:platform")
+namespace = client.create_namespace("https://auth.example.com", "root:org-a", Mutation(reason="bootstrap"))
+```
+
+Run the tests:
+
+```powershell
+cd sdk/python; python -m unittest discover -s tests -t .
+```
+
+Non-2xx responses raise `nomivela.APIError` with `status`, `code`, `message`, and
+`correlation_id`.

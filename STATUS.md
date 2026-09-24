@@ -10,9 +10,10 @@ Version `1.0.0` is the stable public NOMIVELA surface: contracts, schemas, fixtu
 - `contracts/schemas/eidovela-v1-compat.schema.json`
 - `conformance/`: manifest-driven fixtures and a `go test ./conformance/...` suite validating valid and invalid cases across both schemas
 - `sdk/go`: standard-library Go client for namespaces, agents, identities, bindings, workloads, instances, containment, evidence, and events
+- `sdk/python`: standard-library Python client with the same surface
 - `cli/nomivela`: command-line client over the SDK
 - `examples/go/quickstart`: the full registration and enrollment path
 
-Java and Python SDKs and binary checksum/SBOM publishing are deferred to `1.0.x`. The Go SDK is the only supported SDK at `v1.0.0`.
+Post-`1.0.0` on `main`: the Python SDK (`sdk/python`) is added and tested. The Java SDK and binary checksum/SBOM publishing remain deferred to a later release; at the `v1.0.0` tag the Go SDK is the only supported SDK.
 
 See `docs/roadmap.md` for the delivery plan.
