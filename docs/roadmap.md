@@ -25,9 +25,10 @@ Open carries the public surface: OpenAPI, JSON Schema, conformance fixtures, SDK
 
 - Complete versioned contracts for namespace, Agent, identity, immutable binding, workload, instance, discovery, evidence, and events. Published in `contracts/agent-registry-v0.1.openapi.yaml`. Done.
 - Schema-driven conformance fixtures and a `go test ./conformance/...` suite covering valid and invalid cases for Namespace, AgentRecord, AgentIdentity, and DiscoveryDocument. Done.
-- Go SDK for the registration and discovery API. Pending.
-- Public CLI for namespace, Agent, identity, workload, and instance workflows. Pending.
-- Runnable integration examples and EIDOVELA v1 compatibility fixtures. Pending.
+- Go SDK for the registration, lifecycle, containment, and evidence API in `sdk/go`. Done.
+- Public CLI (`cli/nomivela`) for namespace, Agent, identity, workload, instance, evidence, and event workflows. Done.
+- Runnable integration example (`examples/go/quickstart`). Done.
+- EIDOVELA v1 compatibility fixtures. Pending.
 
 **Exit gate**
 
