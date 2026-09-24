@@ -1,0 +1,921 @@
+openapi: 3.1.1
+info:
+  title: NOMIVELA Agent Registry API
+  version: 0.1.0
+  description: >
+    Registration and discovery contract for the Agent Registry and Namespace Authority.
+    Token issuance, workload authentication, and authorization are outside this API
+    and belong to the identity and authorization planes.
+servers:
+  - url: http://localhost:8080
+paths:
+  /v1/namespaces:
+    post:
+      operationId: createNamespace
+      summary: Create a canonical authority namespace.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NamespaceCreate'
+      responses:
+        '201':
+          description: Namespace created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Namespace'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    get:
+      operationId: listNamespaces
+      summary: List authority namespaces.
+      responses:
+        '200':
+          description: Namespace list.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Namespace'
+  /v1/agents:
+    post:
+      operationId: createAgent
+      summary: Register an Agent Record.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentCreate'
+      responses:
+        '201':
+          description: Agent Record created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    get:
+      operationId: listAgents
+      summary: List Agent Records.
+      responses:
+        '200':
+          description: Agent list.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Agent'
+  /v1/agents/{agentRef}/lifecycle:
+    post:
+      operationId: transitionAgent
+      summary: Advance an Agent business lifecycle and increment agent_epoch.
+      parameters:
+        - $ref: '#/components/parameters/AgentRef'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [state]
+              properties:
+                state:
+                  $ref: '#/components/schemas/AgentState'
+      responses:
+        '200':
+          description: Updated Agent Record.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /v1/agents/{agentRef}/containment:
+    post:
+      operationId: containAgent
+      summary: Contain an Agent across all namespaces. Quarantine suspends; terminate retires.
+      description: Suspends or revokes the Agent live identities and quarantines or terminates their live instances in one operation.
+      parameters:
+        - $ref: '#/components/parameters/AgentRef'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/Actor'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mode]
+              properties:
+                mode:
+                  enum: [quarantine, terminate]
+                reason:
+                  type: string
+                evidenceRef:
+                  type: string
+      responses:
+        '200':
+          description: Containment result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContainmentResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /v1/agent-identities:
+    post:
+      operationId: allocateAgentIdentity
+      summary: Allocate an Agent ID in a namespace. At most one live Agent ID per agent.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [namespace, agentRef]
+              properties:
+                namespace:
+                  type: string
+                agentRef:
+                  type: string
+      responses:
+        '201':
+          description: Agent Identity allocated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentIdentity'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    get:
+      operationId: listAgentIdentities
+      summary: List Agent identities for a namespace.
+      parameters:
+        - name: namespace
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Agent identity list.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AgentIdentity'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /v1/agent-identities/{agentID}/binding:
+    post:
+      operationId: bindAgentIdentity
+      summary: Attach the immutable Authority Binding. A second bind is rejected.
+      parameters:
+        - $ref: '#/components/parameters/AgentID'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthorityBindingCreate'
+      responses:
+        '200':
+          description: Bound Agent Identity.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentIdentity'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /v1/agent-identities/{agentID}/lifecycle:
+    post:
+      operationId: transitionAgentIdentity
+      summary: Advance an Agent security lifecycle and increment identity_epoch.
+      parameters:
+        - $ref: '#/components/parameters/AgentID'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [namespace, state]
+              properties:
+                namespace:
+                  type: string
+                state:
+                  $ref: '#/components/schemas/IdentityState'
+      responses:
+        '200':
+          description: Updated Agent Identity.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentIdentity'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /v1/workload-registrations:
+    post:
+      operationId: createWorkloadRegistration
+      summary: Register an approved workload for a namespace.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkloadRegistrationCreate'
+      responses:
+        '201':
+          description: Workload Registration created.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkloadRegistration'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    get:
+      operationId: listWorkloadRegistrations
+      summary: List workload registrations for a namespace.
+      parameters:
+        - name: namespace
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Workload list.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WorkloadRegistration'
+  /v1/workload-registrations/{workloadRegistrationID}/lifecycle:
+    post:
+      operationId: transitionWorkloadRegistration
+      summary: Advance a Workload Registration lifecycle and increment workload_epoch.
+      parameters:
+        - name: workloadRegistrationID
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/Actor'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [state]
+              properties:
+                state:
+                  enum: [active, suspended, revoked]
+                reason:
+                  type: string
+                evidenceRef:
+                  type: string
+      responses:
+        '200':
+          description: Updated Workload Registration.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkloadRegistration'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /v1/agent-identities/{agentID}/instances:
+    post:
+      operationId: commitAgentInstance
+      summary: Record a verified enrollment and activate an Agent Instance.
+      parameters:
+        - $ref: '#/components/parameters/AgentID'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstanceCommit'
+      responses:
+        '201':
+          description: Agent Instance committed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentInstance'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    get:
+      operationId: listAgentInstances
+      summary: List Agent Instances for an Agent identity.
+      parameters:
+        - $ref: '#/components/parameters/AgentID'
+        - name: namespace
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Instance list.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AgentInstance'
+  /v1/instances/{instanceID}/lifecycle:
+    post:
+      operationId: transitionInstance
+      summary: Advance an Agent Instance lifecycle and increment its generation.
+      parameters:
+        - name: instanceID
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [state]
+              properties:
+                state:
+                  $ref: '#/components/schemas/InstanceState'
+      responses:
+        '200':
+          description: Updated Agent Instance.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentInstance'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /v1/namespaces/lifecycle:
+    post:
+      operationId: transitionNamespace
+      summary: Advance an authority namespace lifecycle and increment namespace_epoch.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/Actor'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [namespace, state]
+              properties:
+                namespace:
+                  type: string
+                state:
+                  $ref: '#/components/schemas/NamespaceState'
+                reason:
+                  type: string
+                evidenceRef:
+                  type: string
+      responses:
+        '200':
+          description: Updated namespace.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Namespace'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /v1/namespaces/delegations:
+    post:
+      operationId: delegateNamespace
+      summary: Delegate administration to a child namespace without changing its authority root.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/Actor'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [parent, child]
+              properties:
+                parent:
+                  type: string
+                child:
+                  type: string
+                scope:
+                  type: string
+                reason:
+                  type: string
+                evidenceRef:
+                  type: string
+      responses:
+        '201':
+          description: Delegation recorded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NamespaceDelegation'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /v1/evidence:
+    get:
+      operationId: listEvidence
+      summary: List append-only lifecycle evidence.
+      responses:
+        '200':
+          description: Evidence list.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/LifecycleEvent'
+  /v1/events:
+    get:
+      operationId: listOutboxEvents
+      summary: List transactional outbox events.
+      responses:
+        '200':
+          description: Outbox event list.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/OutboxEvent'
+  /.well-known/agent-iam:
+    get:
+      operationId: getAgentIAMDiscovery
+      summary: Resolve registry discovery metadata for a namespace.
+      parameters:
+        - name: namespace
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Discovery metadata.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscoveryDocument'
+components:
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+      description: Client-generated key that makes the mutation replay-safe.
+    CorrelationId:
+      name: X-Correlation-Id
+      in: header
+      required: false
+      schema:
+        type: string
+      description: Caller correlation id, echoed in every error response.
+    Actor:
+      name: X-Actor
+      in: header
+      required: true
+      schema:
+        type: string
+      description: Principal responsible for the mutation; recorded in lifecycle evidence.
+    AgentRef:
+      name: agentRef
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: '^agent_[A-Za-z0-9_-]+$'
+    AgentID:
+      name: agentID
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    BadRequest:
+      description: Invalid request.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Object not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Conflict:
+      description: Uniqueness or immutability conflict.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  schemas:
+    NamespaceCreate:
+      type: object
+      required: [namespace, authorityRootRef]
+      properties:
+        namespace:
+          type: string
+        authorityRootRef:
+          type: string
+          minLength: 1
+    NamespaceState:
+      enum: [active, suspended, revoked]
+    Namespace:
+      type: object
+      required: [namespace, authorityRootRef, status, namespaceEpoch]
+      properties:
+        namespace:
+          type: string
+        parent:
+          type: string
+        authorityRootRef:
+          type: string
+        status:
+          $ref: '#/components/schemas/NamespaceState'
+        namespaceEpoch:
+          type: integer
+          minimum: 1
+    NamespaceDelegation:
+      type: object
+      required: [namespaceDelegationId, parent, child]
+      properties:
+        namespaceDelegationId:
+          type: string
+          format: uuid
+        parent:
+          type: string
+        child:
+          type: string
+        scope:
+          type: string
+    LifecycleEvent:
+      type: object
+      required: [eventId, objectType, objectId, newState, epochKind, epoch, actor, occurredAt]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        objectType:
+          enum: [namespace, agent, agent_identity, workload_registration, agent_instance]
+        objectId:
+          type: string
+        previousState:
+          type: string
+        newState:
+          type: string
+        epochKind:
+          enum: [namespace, agent, identity, instance]
+        epoch:
+          type: integer
+          minimum: 1
+        actor:
+          type: string
+        reason:
+          type: string
+        evidenceRef:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+    OutboxEvent:
+      type: object
+      required: [eventId, eventType, aggregateType, aggregateId, sequence, occurredAt]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        eventType:
+          type: string
+        aggregateType:
+          type: string
+        aggregateId:
+          type: string
+        sequence:
+          type: integer
+          minimum: 1
+        occurredAt:
+          type: string
+          format: date-time
+    AgentCreate:
+      type: object
+      required: [agentRef, name, purpose, sponsorRef, ownerRef, riskClass]
+      properties:
+        agentRef:
+          type: string
+          pattern: '^agent_[A-Za-z0-9_-]+$'
+        name:
+          type: string
+          minLength: 1
+        purpose:
+          type: string
+          minLength: 1
+        sponsorRef:
+          type: string
+          minLength: 1
+        ownerRef:
+          type: string
+          minLength: 1
+        riskClass:
+          enum: [low, medium, high, critical]
+    Agent:
+      type: object
+      required: [agentRef, name, purpose, sponsorRef, ownerRef, riskClass, state, agentEpoch]
+      properties:
+        agentRef:
+          type: string
+        name:
+          type: string
+        purpose:
+          type: string
+        sponsorRef:
+          type: string
+        ownerRef:
+          type: string
+        riskClass:
+          enum: [low, medium, high, critical]
+        state:
+          $ref: '#/components/schemas/AgentState'
+        agentEpoch:
+          type: integer
+          minimum: 1
+    AgentState:
+      enum: [draft, registered, approved, active, suspended, retired]
+    IdentityState:
+      enum: [allocated, bound, active, suspended, revoked]
+    AuthorityBindingCreate:
+      type: object
+      required: [namespace, authorityRootRef, authorityRootType]
+      properties:
+        namespace:
+          type: string
+        authorityRootRef:
+          type: string
+          minLength: 1
+        authorityRootType:
+          type: string
+          minLength: 1
+    AgentIdentity:
+      type: object
+      required: [namespace, agentId, agentRef, state, identityEpoch]
+      properties:
+        namespace:
+          type: string
+        agentId:
+          type: string
+          format: uuid
+        agentRef:
+          type: string
+        state:
+          $ref: '#/components/schemas/IdentityState'
+        identityEpoch:
+          type: integer
+          minimum: 1
+        authorityRootRef:
+          type: string
+        authorityRootType:
+          type: string
+    DiscoveryDocument:
+      type: object
+      required: [namespace, registryEndpoint, issuer, jwksUri, supportedProofProfiles]
+      properties:
+        namespace:
+          type: string
+        registryEndpoint:
+          type: string
+          format: uri
+        issuer:
+          type: string
+          format: uri
+        jwksUri:
+          type: string
+          format: uri
+        supportedProofProfiles:
+          type: array
+          items:
+            type: string
+    WorkloadRegistrationCreate:
+      type: object
+      required: [namespace, platform, selector, trustDomain, allowedProofMethods]
+      properties:
+        namespace:
+          type: string
+        platform:
+          type: string
+          minLength: 1
+        selector:
+          type: object
+          additionalProperties:
+            type: string
+        trustDomain:
+          type: string
+          minLength: 1
+        allowedProofMethods:
+          type: array
+          items:
+            type: string
+    WorkloadRegistration:
+      allOf:
+        - $ref: '#/components/schemas/WorkloadRegistrationCreate'
+        - type: object
+          required: [workloadRegistrationId, status, workloadEpoch]
+          properties:
+            workloadRegistrationId:
+              type: string
+              format: uuid
+            status:
+              enum: [active, suspended, revoked]
+            workloadEpoch:
+              type: integer
+              minimum: 1
+    InstanceState:
+      enum: [pending, active, quarantined, terminated, expired]
+    InstanceCommit:
+      type: object
+      required: [namespace, workloadRegistrationId, workloadId, artifactDigest, attestationRef, leaseExpiresAt]
+      properties:
+        namespace:
+          type: string
+        workloadRegistrationId:
+          type: string
+          format: uuid
+        workloadId:
+          type: string
+          minLength: 1
+        artifactDigest:
+          type: string
+          minLength: 1
+        attestationRef:
+          type: string
+          minLength: 1
+        leaseExpiresAt:
+          type: string
+          format: date-time
+    AgentInstance:
+      type: object
+      required: [instanceId, namespace, agentId, workloadRegistrationId, workloadId, artifactDigest, attestationRef, leaseExpiresAt, state, generation]
+      properties:
+        instanceId:
+          type: string
+          format: uuid
+        namespace:
+          type: string
+        agentId:
+          type: string
+          format: uuid
+        workloadRegistrationId:
+          type: string
+          format: uuid
+        workloadId:
+          type: string
+        artifactDigest:
+          type: string
+        attestationRef:
+          type: string
+        leaseExpiresAt:
+          type: string
+          format: date-time
+        state:
+          $ref: '#/components/schemas/InstanceState'
+        generation:
+          type: integer
+          minimum: 1
+    ContainmentResult:
+      type: object
+      required: [agentRef, mode, agentState, agentEpoch, identities, instances]
+      properties:
+        agentRef:
+          type: string
+        mode:
+          enum: [quarantine, terminate]
+        agentState:
+          $ref: '#/components/schemas/AgentState'
+        agentEpoch:
+          type: integer
+          minimum: 1
+        identities:
+          type: array
+          items:
+            type: string
+            format: uuid
+        instances:
+          type: array
+          items:
+            type: string
+            format: uuid
+    Error:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message, correlationId]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            correlationId:
+              type: string

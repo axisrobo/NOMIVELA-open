@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/axisrobo/nomivela-open/contracts/schemas/agent-registry-v0.1.schema.json",
+  "title": "NOMIVELA Agent Registry v0.1",
+  "type": "object",
+  "$defs": {
+    "Namespace": {
+      "type": "object",
+      "required": ["namespace", "authorityRootRef", "status"],
+      "properties": {
+        "namespace": {"type": "string", "pattern": "^https://[^/]+(?:/[^?#]+)?$"},
+        "parentNamespace": {"type": "string"},
+        "authorityRootRef": {"type": "string", "minLength": 1},
+        "status": {"enum": ["active", "suspended", "revoked"]}
+      }
+    },
+    "AgentRecord": {
+      "type": "object",
+      "required": ["agentRef", "name", "purpose", "sponsorRef", "ownerRef", "riskClass", "state", "agentEpoch"],
+      "properties": {
+        "agentRef": {"type": "string", "pattern": "^agent_[a-zA-Z0-9_-]+$"},
+        "name": {"type": "string", "minLength": 1},
+        "purpose": {"type": "string", "minLength": 1},
+        "sponsorRef": {"type": "string", "minLength": 1},
+        "ownerRef": {"type": "string", "minLength": 1},
+        "riskClass": {"enum": ["low", "medium", "high", "critical"]},
+        "state": {"enum": ["draft", "registered", "approved", "active", "suspended", "retired"]},
+        "agentEpoch": {"type": "integer", "minimum": 1}
+      }
+    },
+    "AgentIdentity": {
+      "type": "object",
+      "required": ["namespace", "agentId", "agentRef", "state", "identityEpoch"],
+      "properties": {
+        "namespace": {"type": "string"},
+        "agentId": {"type": "string", "format": "uuid"},
+        "agentRef": {"type": "string"},
+        "state": {"enum": ["allocated", "bound", "active", "suspended", "revoked"]},
+        "identityEpoch": {"type": "integer", "minimum": 1}
+      }
+    },
+    "DiscoveryDocument": {
+      "type": "object",
+      "required": ["namespace", "registryEndpoint", "issuer", "jwksUri", "supportedProofProfiles"],
+      "properties": {
+        "namespace": {"type": "string"},
+        "registryEndpoint": {"type": "string", "format": "uri"},
+        "issuer": {"type": "string", "format": "uri"},
+        "jwksUri": {"type": "string", "format": "uri"},
+        "supportedProofProfiles": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

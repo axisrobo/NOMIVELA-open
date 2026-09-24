@@ -1,0 +1,45 @@
+openapi: 3.1.1
+info:
+  title: NOMIVELA Core API
+  version: 0.1.0
+  description: Public operational endpoints for NOMIVELA Core.
+servers:
+  - url: http://localhost:8080
+paths:
+  /healthz:
+    get:
+      operationId: getHealth
+      summary: Check whether the Core HTTP process is responding.
+      responses:
+        '200':
+          description: Core is responding.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+  /readyz:
+    get:
+      operationId: getReadiness
+      summary: Check whether Core can reach PostgreSQL.
+      responses:
+        '200':
+          description: Core is ready.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+        '503':
+          description: Core cannot reach PostgreSQL.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Status'
+components:
+  schemas:
+    Status:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok, unavailable]
