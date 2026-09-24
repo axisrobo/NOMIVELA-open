@@ -28,7 +28,7 @@ Open carries the public surface: OpenAPI, JSON Schema, conformance fixtures, SDK
 - Go SDK for the registration, lifecycle, containment, and evidence API in `sdk/go`. Done.
 - Public CLI (`cli/nomivela`) for namespace, Agent, identity, workload, instance, evidence, and event workflows. Done.
 - Runnable integration example (`examples/go/quickstart`). Done.
-- EIDOVELA v1 compatibility fixtures. Pending.
+- EIDOVELA v1 compatibility fixtures and schema (`contracts/schemas/eidovela-v1-compat.schema.json`). Done.
 
 **Exit gate**
 
