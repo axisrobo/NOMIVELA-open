@@ -17,4 +17,6 @@ Version `1.1.0` is the current release of the public NOMIVELA surface: contracts
 
 At `v1.1.0` the supported SDKs are Go, Python, and Java. Core release binaries with `SHA256SUMS`, a release manifest, and a CycloneDX SBOM are published as GitHub Release assets on this repository by `scripts/release.ps1` in the core repository.
 
+Compatibility between releases and contracts is documented in `COMPATIBILITY.md`.
+
 See `docs/roadmap.md` for the delivery plan.
