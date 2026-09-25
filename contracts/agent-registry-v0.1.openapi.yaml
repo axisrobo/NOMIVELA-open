@@ -524,6 +524,61 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/LifecycleEvent'
+  /v1/evidence/external:
+    post:
+      operationId: recordExternalEvidence
+      summary: Record an event contributed by a trusted external plane.
+      description: >
+        External evidence is stored separately from registry lifecycle evidence and
+        never participates in registry epochs or state machines. Recording is
+        idempotent per source and correlationId.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - $ref: '#/components/parameters/Actor'
+        - $ref: '#/components/parameters/CorrelationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExternalEvidenceCreate'
+      responses:
+        '201':
+          description: External evidence recorded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalEvidence'
+        '200':
+          description: The same source and correlationId were already recorded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExternalEvidence'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+    get:
+      operationId: listExternalEvidence
+      summary: List external evidence, optionally filtered by source.
+      parameters:
+        - name: source
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: External evidence list.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items]
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ExternalEvidence'
   /v1/events:
     get:
       operationId: listOutboxEvents
@@ -963,6 +1018,63 @@ components:
         generation:
           type: integer
           minimum: 1
+    ExternalEvidenceCreate:
+      type: object
+      required: [source, correlationId, objectType, objectId, eventType]
+      properties:
+        source:
+          type: string
+          minLength: 1
+        correlationId:
+          type: string
+          minLength: 1
+        objectType:
+          type: string
+          minLength: 1
+        objectId:
+          type: string
+          minLength: 1
+        eventType:
+          type: string
+          minLength: 1
+        actor:
+          type: string
+        reason:
+          type: string
+        detail:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+    ExternalEvidence:
+      type: object
+      required: [eventId, source, correlationId, objectType, objectId, eventType, occurredAt, recordedAt]
+      properties:
+        eventId:
+          type: string
+          format: uuid
+        source:
+          type: string
+        correlationId:
+          type: string
+        objectType:
+          type: string
+        objectId:
+          type: string
+        eventType:
+          type: string
+        actor:
+          type: string
+        reason:
+          type: string
+        detail:
+          type: string
+        occurredAt:
+          type: string
+          format: date-time
+        recordedAt:
+          type: string
+          format: date-time
     ContainmentResult:
       type: object
       required: [agentRef, mode, agentState, agentEpoch, identities, instances]
