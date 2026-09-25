@@ -6,7 +6,7 @@ Do not confuse them.
 
 | Version | Example | Meaning |
 | --- | --- | --- |
-| Release version | `1.1.0` | The product release. Core and Open share it; EE is independent. |
+| Release version | `1.2.0` | The product release. Core and Open share it; EE is independent. |
 | Contract version | `0.1` | The Agent Registry public contract set (`agent-registry-v0.1`, `eidovela-v1-compat`). Changes only when a documented compatibility decision allows it. |
 
 A release may add optional fields to a contract without changing the contract
@@ -25,6 +25,7 @@ approved contract-version bump, which is guarded by
 
 | Release | Core / Open | Contracts | SDKs | Notes |
 | --- | --- | --- | --- | --- |
+| `v1.2.0` | `1.2.0` | `agent-registry-v0.1`, `eidovela-v1-compat` | Go, Python, Java | Additive external evidence ingest (`/v1/evidence/external`) |
 | `v1.1.0` | `1.1.0` | `agent-registry-v0.1`, `eidovela-v1-compat` | Go, Python, Java | Agent form and carrier model; Core binaries with checksums and SBOM |
 | `v1.0.0` | `1.0.0` | `agent-registry-v0.1` | Go | Production baseline |
 | `v0.5.0` | `0.5.0` | `agent-registry-v0.1` | Go | Developer Preview |

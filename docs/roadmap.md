@@ -44,6 +44,7 @@ Open carries the public surface: OpenAPI, JSON Schema, conformance fixtures, SDK
 - Java SDK (`sdk/java`, zero runtime dependencies, JDK 17+). Done (post-`1.0.0`).
 - Binary checksums and SBOM per release: Core produces them with `scripts/release.ps1` (`SHA256SUMS`, manifest, CycloneDX `sbom.json`) and they are published as GitHub Release assets on this repository. Done (post-`1.0.0`).
 - Compatibility documentation per release: `COMPATIBILITY.md` documents the release-vs-contract version model, the release compatibility matrix, the change policy, and the runtime baseline, guarded by `conformance.TestContractVersionIsStable`. Done (post-`1.0.0`).
+- External evidence ingest contract (`POST`/`GET /v1/evidence/external`) for trusted planes. Done at `1.2.0`.
 
 **Exit gate**
 
