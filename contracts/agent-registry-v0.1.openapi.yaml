@@ -6,6 +6,9 @@ info:
     Registration and discovery contract for the Agent Registry and Namespace Authority.
     Token issuance, workload authentication, and authorization are outside this API
     and belong to the identity and authorization planes.
+    Authentication is optional: when the deployment enables API tokens, mutating
+    operations require `Authorization: Bearer <token>` and return `401` with code
+    `unauthorized` otherwise, while read operations stay open.
 servers:
   - url: http://localhost:8080
 paths:
@@ -608,6 +611,11 @@ paths:
               schema:
                 $ref: '#/components/schemas/DiscoveryDocument'
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Required on mutating operations when the deployment enables API tokens.
   parameters:
     IdempotencyKey:
       name: Idempotency-Key
@@ -659,6 +667,12 @@ components:
             $ref: '#/components/schemas/Error'
     Conflict:
       description: Uniqueness or immutability conflict.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: A valid bearer token is required because the deployment enables API tokens.
       content:
         application/json:
           schema:
