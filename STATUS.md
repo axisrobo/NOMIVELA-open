@@ -5,7 +5,7 @@ Version `1.2.0` is the current release of the public NOMIVELA surface: contracts
 ## Published
 
 - `contracts/core-api.openapi.yaml`
-- `contracts/agent-registry-v0.1.openapi.yaml`: namespaces, agents, identities, bindings, workloads, instances, lifecycle, containment, evidence, external evidence ingest, events, and discovery (18 paths, 23 schemas)
+- `contracts/agent-registry-v0.1.openapi.yaml`: namespaces, agents, identities, bindings, workloads, instances, lifecycle, containment, evidence, external evidence ingest, the atomic Registry Context point read, events, and discovery (19 paths, 24 schemas)
 - `contracts/schemas/agent-registry-v0.1.schema.json`, including the Agent form (`agentClass`) and carrier references (`carrierRefs`) introduced by ADR 0005
 - `contracts/schemas/eidovela-v1-compat.schema.json`
 - `conformance/`: manifest-driven fixtures and a `go test ./conformance/...` suite validating valid and invalid cases across both schemas

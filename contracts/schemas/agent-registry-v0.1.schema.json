@@ -51,6 +51,17 @@
         "jwksUri": {"type": "string", "format": "uri"},
         "supportedProofProfiles": {"type": "array", "items": {"type": "string"}}
       }
+    },
+    "RegistryContext": {
+      "type": "object",
+      "required": ["namespace", "agent", "identity"],
+      "properties": {
+        "namespace": {"$ref": "#/$defs/Namespace"},
+        "agent": {"$ref": "#/$defs/AgentRecord"},
+        "identity": {"$ref": "#/$defs/AgentIdentity"},
+        "workloadRegistration": {"type": "object"},
+        "instance": {"type": "object"}
+      }
     }
   }
 }

@@ -68,6 +68,27 @@ func TestListIdentitiesEscapesQuery(t *testing.T) {
 	}
 }
 
+func TestGetRegistryContextEncodesSelectors(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/v1/registry-context" {
+			t.Fatalf("path = %s", r.URL.Path)
+		}
+		if r.URL.Query().Get("namespace") != "https://auth.example.com" || r.URL.Query().Get("agentId") != "agent-id" || r.URL.Query().Get("instanceId") != "instance-id" || r.URL.Query().Get("workloadRegistrationId") != "workload-id" {
+			t.Fatalf("query = %s", r.URL.RawQuery)
+		}
+		_, _ = w.Write([]byte(`{"namespace":{"namespace":"https://auth.example.com","authorityRootRef":"root","status":"active","namespaceEpoch":1},"agent":{"agentRef":"agent_orders","name":"Orders","purpose":"orders","sponsorRef":"org","ownerRef":"owner","riskClass":"low","state":"active","agentEpoch":1},"identity":{"namespace":"https://auth.example.com","agentId":"agent-id","agentRef":"agent_orders","state":"active","identityEpoch":1}}`))
+	}))
+	defer server.Close()
+
+	context, err := New(server.URL).GetRegistryContext(context.Background(), "https://auth.example.com", "agent-id", "instance-id", "workload-id")
+	if err != nil {
+		t.Fatalf("get context: %v", err)
+	}
+	if context.Identity.AgentID != "agent-id" || context.Agent.AgentRef != "agent_orders" {
+		t.Fatalf("context = %+v", context)
+	}
+}
+
 func TestAPIErrorCarriesCode(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusConflict)

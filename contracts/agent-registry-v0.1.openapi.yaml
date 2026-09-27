@@ -210,6 +210,39 @@ paths:
                     type: array
                     items:
                       $ref: '#/components/schemas/AgentIdentity'
+  /v1/registry-context:
+    get:
+      operationId: getRegistryContext
+      summary: Read a consistent Registry Context for one Agent identity.
+      description: Returns Namespace, Agent, Agent Identity and Authority Binding from one Registry snapshot. instanceId and workloadRegistrationId select their corresponding records; an instance also returns its workload registration.
+      parameters:
+        - name: namespace
+          in: query
+          required: true
+          schema: { type: string, format: uri }
+        - name: agentId
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+        - name: instanceId
+          in: query
+          required: false
+          schema: { type: string, format: uuid }
+        - name: workloadRegistrationId
+          in: query
+          required: false
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Consistent Registry Context.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegistryContext'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
         '400':
           $ref: '#/components/responses/BadRequest'
   /v1/agent-identities/{agentID}/binding:
@@ -1018,6 +1051,20 @@ components:
         generation:
           type: integer
           minimum: 1
+    RegistryContext:
+      type: object
+      required: [namespace, agent, identity]
+      properties:
+        namespace:
+          $ref: '#/components/schemas/Namespace'
+        agent:
+          $ref: '#/components/schemas/Agent'
+        identity:
+          $ref: '#/components/schemas/AgentIdentity'
+        workloadRegistration:
+          $ref: '#/components/schemas/WorkloadRegistration'
+        instance:
+          $ref: '#/components/schemas/AgentInstance'
     ExternalEvidenceCreate:
       type: object
       required: [source, correlationId, objectType, objectId, eventType]

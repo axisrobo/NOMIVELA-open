@@ -121,6 +121,17 @@ type AgentInstance struct {
 	Generation             int64  `json:"generation"`
 }
 
+// RegistryContext is an atomic Registry snapshot for one identity decision.
+// Namespace, Agent, and Identity are always present. WorkloadRegistration and
+// Instance are included when selected, or when an instance selects its workload.
+type RegistryContext struct {
+	Namespace            Namespace             `json:"namespace"`
+	Agent                Agent                 `json:"agent"`
+	Identity             AgentIdentity         `json:"identity"`
+	WorkloadRegistration *WorkloadRegistration `json:"workloadRegistration,omitempty"`
+	Instance             *AgentInstance        `json:"instance,omitempty"`
+}
+
 // LifecycleEvent is append-only evidence of a state transition.
 type LifecycleEvent struct {
 	EventID       string `json:"eventId"`
@@ -232,6 +243,24 @@ func (c *Client) ListAgents(ctx context.Context) ([]Agent, error) {
 		return nil, err
 	}
 	return out.Items, nil
+}
+
+// GetRegistryContext returns a consistent point-in-time view for one Agent
+// identity. Consumers making a lifecycle decision must use this rather than
+// joining separate list responses.
+func (c *Client) GetRegistryContext(ctx context.Context, namespace, agentID, instanceID, workloadRegistrationID string) (*RegistryContext, error) {
+	query := url.Values{"namespace": {namespace}, "agentId": {agentID}}
+	if instanceID != "" {
+		query.Set("instanceId", instanceID)
+	}
+	if workloadRegistrationID != "" {
+		query.Set("workloadRegistrationId", workloadRegistrationID)
+	}
+	var out RegistryContext
+	if err := c.do(ctx, http.MethodGet, "/v1/registry-context?"+query.Encode(), nil, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
 }
 
 // TransitionAgent advances an Agent lifecycle.
