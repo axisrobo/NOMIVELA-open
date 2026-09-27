@@ -6,9 +6,13 @@ info:
     Registration and discovery contract for the Agent Registry and Namespace Authority.
     Token issuance, workload authentication, and authorization are outside this API
     and belong to the identity and authorization planes.
-    Authentication is optional: when the deployment enables API tokens, mutating
-    operations require `Authorization: Bearer <token>` and return `401` with code
-    `unauthorized` otherwise, while read operations stay open.
+    Authentication is optional: when the deployment enables API tokens or scoped
+    service principals, every request requires `Authorization: Bearer <token>` and
+    returns `401` with code `unauthorized` otherwise. Reads need `registry.read`,
+    mutations need `registry.write`, and instance commit needs `instance.commit`;
+    a namespace-scoped principal is limited to its namespaces and an out-of-scope
+    request returns `403` with code `insufficient_scope`. Health, readiness,
+    metrics, and `/.well-known/` stay public.
 servers:
   - url: http://localhost:8080
 paths:

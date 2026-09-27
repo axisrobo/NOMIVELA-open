@@ -1,6 +1,6 @@
 # Status
 
-Version `1.2.0` is the current release of the public NOMIVELA surface: contracts, schemas, fixtures, the Go, Python, and Java SDKs, the CLI, examples, and redistributable Core binaries on the release page. `1.0.0` established the stable Go surface; `1.1.0` added the Python and Java SDKs and published Core release artifacts; `1.2.0` adds the external evidence ingest contract.
+Version `1.3.0` is the current release of the public NOMIVELA surface: contracts, schemas, fixtures, the Go, Python, and Java SDKs, the CLI, examples, and redistributable Core binaries on the release page. `1.0.0` established the stable Go surface; `1.1.0` added the Python and Java SDKs and published Core release artifacts; `1.2.0` added the external evidence ingest contract; `1.3.0` adds the atomic Registry Context contract and bearer-token support across all SDKs.
 
 ## Published
 
