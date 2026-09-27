@@ -12,6 +12,7 @@ import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * A zero-dependency client for the NOMIVELA Agent Registry API. Every mutation
@@ -24,16 +25,27 @@ public final class Client {
 
     private final String baseUrl;
     private final String actor;
+    private final Supplier<String> tokenProvider;
     private final HttpClient http;
 
     public Client(String baseUrl) {
-        this(baseUrl, "nomivela-sdk");
+        this(baseUrl, "nomivela-sdk", null);
     }
 
     public Client(String baseUrl, String actor) {
+        this(baseUrl, actor, null);
+    }
+
+    public Client(String baseUrl, String actor, Supplier<String> tokenProvider) {
         this.baseUrl = baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
         this.actor = actor;
+        this.tokenProvider = tokenProvider;
         this.http = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(30)).build();
+    }
+
+    /** Returns a client that sends {@code Authorization: Bearer <token>}. */
+    public static Client withToken(String baseUrl, String actor, String token) {
+        return new Client(baseUrl, actor, () -> token);
     }
 
     // -- Namespaces ------------------------------------------------------
@@ -213,6 +225,12 @@ public final class Client {
         if (!method.equals("GET")) {
             builder.header("Idempotency-Key", newIdempotencyKey());
             builder.header("X-Actor", actor);
+        }
+        if (tokenProvider != null) {
+            String token = tokenProvider.get();
+            if (token != null && !token.isEmpty()) {
+                builder.header("Authorization", "Bearer " + token);
+            }
         }
 
         HttpResponse<String> response;

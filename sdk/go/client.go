@@ -20,9 +20,10 @@ import (
 
 // Client is a NOMIVELA Agent Registry API client.
 type Client struct {
-	baseURL    string
-	httpClient *http.Client
-	actor      string
+	baseURL       string
+	httpClient    *http.Client
+	actor         string
+	tokenProvider func() (string, error)
 }
 
 // Option configures a Client.
@@ -40,6 +41,24 @@ func WithHTTPClient(client *http.Client) Option {
 // WithActor sets the X-Actor value used for mutations.
 func WithActor(actor string) Option {
 	return func(c *Client) { c.actor = actor }
+}
+
+// WithToken sets a static bearer token sent on every request. Use it when the
+// deployment enables API tokens or scoped service principals.
+func WithToken(token string) Option {
+	return func(c *Client) {
+		if token == "" {
+			c.tokenProvider = nil
+			return
+		}
+		c.tokenProvider = func() (string, error) { return token, nil }
+	}
+}
+
+// WithTokenProvider sets a bearer token source resolved on every request, so a
+// rotated or refreshed token is picked up without rebuilding the client.
+func WithTokenProvider(provider func() (string, error)) Option {
+	return func(c *Client) { c.tokenProvider = provider }
 }
 
 // New returns a Client for the given base URL.
@@ -476,6 +495,15 @@ func (c *Client) do(ctx context.Context, method, path string, body any, out any)
 	if method != http.MethodGet {
 		request.Header.Set("Idempotency-Key", newIdempotencyKey())
 		request.Header.Set("X-Actor", c.actor)
+	}
+	if c.tokenProvider != nil {
+		token, err := c.tokenProvider()
+		if err != nil {
+			return fmt.Errorf("nomivela: resolve token: %w", err)
+		}
+		if token != "" {
+			request.Header.Set("Authorization", "Bearer "+token)
+		}
 	}
 
 	response, err := c.httpClient.Do(request)

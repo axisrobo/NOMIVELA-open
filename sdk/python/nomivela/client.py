@@ -8,7 +8,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 from .types import (
     Agent,
@@ -56,10 +56,19 @@ class Mutation:
 class Client:
     """A NOMIVELA Agent Registry API client."""
 
-    def __init__(self, base_url: str, actor: str = "nomivela-sdk", timeout: float = 30.0):
+    def __init__(
+        self,
+        base_url: str,
+        actor: str = "nomivela-sdk",
+        timeout: float = 30.0,
+        token: Optional[str] = None,
+        token_provider: Optional[Callable[[], str]] = None,
+    ):
         self.base_url = base_url.rstrip("/")
         self.actor = actor
         self.timeout = timeout
+        self._token = token
+        self._token_provider = token_provider
 
     # -- Namespaces ------------------------------------------------------
 
@@ -189,6 +198,9 @@ class Client:
         if method != "GET":
             headers["Idempotency-Key"] = secrets.token_hex(16)
             headers["X-Actor"] = self.actor
+        token = self._token_provider() if self._token_provider is not None else self._token
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
 
         request = urllib.request.Request(self.base_url + path, data=data, headers=headers, method=method)
         try:

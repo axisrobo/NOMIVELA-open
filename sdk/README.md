@@ -1,5 +1,27 @@
 # NOMIVELA SDKs
 
+## Authentication
+
+When the deployment enables API tokens or scoped service principals, send
+`Authorization: Bearer <token>`. A scoped principal is restricted to the
+namespaces it is configured for, and needs `registry.read` to read and
+`instance.commit` to commit an instance.
+
+```go
+client := nomivela.New("https://registry.example.com", nomivela.WithToken(os.Getenv("NOMIVELA_TOKEN")))
+```
+
+```python
+client = Client("https://registry.example.com", token=os.environ["NOMIVELA_TOKEN"])
+```
+
+```java
+Client client = Client.withToken("https://registry.example.com", "eidovela", System.getenv("NOMIVELA_TOKEN"));
+```
+
+Use a token provider when the token rotates: `nomivela.WithTokenProvider(fn)`,
+`Client(..., token_provider=fn)`, or `new Client(baseUrl, actor, supplier)`.
+
 ## Go
 
 `sdk/go` is a standard-library-only client for the Agent Registry API. It sends
@@ -13,6 +35,9 @@ agent, err := client.CreateAgent(ctx, nomivela.Agent{
     AgentRef: "agent_order_processor", Name: "Order Processor", Purpose: "Process orders",
     SponsorRef: "org:platform", OwnerRef: "user:owner", RiskClass: "medium",
 }, nomivela.Mutation{})
+
+// One consistent read for an issuance decision.
+context, err := client.GetRegistryContext(ctx, "https://auth.example.com", agentID, instanceID, "")
 ```
 
 Run the tests:

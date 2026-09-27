@@ -68,6 +68,26 @@ func TestListIdentitiesEscapesQuery(t *testing.T) {
 	}
 }
 
+func TestClientSendsBearerToken(t *testing.T) {
+	var gotAuth []string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotAuth = append(gotAuth, r.Header.Get("Authorization"))
+		_, _ = w.Write([]byte(`{"items":[]}`))
+	}))
+	defer server.Close()
+
+	if _, err := New(server.URL, WithToken("secret-token")).ListNamespaces(context.Background()); err != nil {
+		t.Fatalf("static token: %v", err)
+	}
+	if _, err := New(server.URL, WithTokenProvider(func() (string, error) { return "rotated", nil })).ListNamespaces(context.Background()); err != nil {
+		t.Fatalf("provider token: %v", err)
+	}
+
+	if len(gotAuth) != 2 || gotAuth[0] != "Bearer secret-token" || gotAuth[1] != "Bearer rotated" {
+		t.Fatalf("authorization headers = %v", gotAuth)
+	}
+}
+
 func TestGetRegistryContextEncodesSelectors(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v1/registry-context" {
