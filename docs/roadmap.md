@@ -47,6 +47,7 @@ Open carries the public surface: OpenAPI, JSON Schema, conformance fixtures, SDK
 - External evidence ingest contract (`POST`/`GET /v1/evidence/external`) for trusted planes. Done at `1.2.0`.
 - Atomic Registry Context contract (`GET /v1/registry-context`) so a consumer reads Namespace, Agent, identity, workload, and instance from one snapshot. Delivered at `1.3.0`.
 - Bearer-token support across the Go, Python, and Java SDKs for scoped service principals. Delivered at `1.3.0`.
+- Idempotent instance commit contract and a caller-supplied idempotency key in every SDK. Delivered at `1.4.0`.
 
 **Exit gate**
 
