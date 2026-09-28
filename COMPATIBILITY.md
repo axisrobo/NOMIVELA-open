@@ -6,7 +6,7 @@ Do not confuse them.
 
 | Version | Example | Meaning |
 | --- | --- | --- |
-| Release version | `1.5.0` | The product release. Core and Open share it; EE is independent. |
+| Release version | `1.6.0` | The product release. Core and Open share it; EE is independent. |
 | Contract version | `0.1` | The Agent Registry public contract set (`agent-registry-v0.1`, `eidovela-v1-compat`). Changes only when a documented compatibility decision allows it. |
 
 A release may add optional fields to a contract without changing the contract
@@ -25,6 +25,7 @@ approved contract-version bump, which is guarded by
 
 | Release | Core / Open | Contracts | SDKs | Notes |
 | --- | --- | --- | --- | --- |
+| `v1.6.0` | `1.6.0` | `agent-registry-v0.1`, `eidovela-v1-compat` | Go, Python, Java | Recoverable event stream: cursor replay, lease/ack/nack; SDK event methods |
 | `v1.5.0` | `1.5.0` | `agent-registry-v0.1`, `eidovela-v1-compat` | Go, Python, Java | Signed discovery; registry discovery JWKS; SDK discovery reads |
 | `v1.4.0` | `1.4.0` | `agent-registry-v0.1`, `eidovela-v1-compat` | Go, Python, Java | Idempotent instance commit; SDK idempotency key |
 | `v1.3.0` | `1.3.0` | `agent-registry-v0.1`, `eidovela-v1-compat` | Go, Python, Java | Atomic Registry Context point read; scoped service principals; SDK bearer tokens |

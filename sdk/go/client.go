@@ -14,6 +14,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -200,14 +201,26 @@ type LifecycleEvent struct {
 	OccurredAt    string `json:"occurredAt"`
 }
 
-// OutboxEvent is a transactional outbox record.
+// OutboxEvent is a transactional outbox record on the recoverable change
+// stream. Cursor is a global position; PayloadVersion identifies the minimal
+// payload schema.
 type OutboxEvent struct {
-	EventID       string `json:"eventId"`
-	EventType     string `json:"eventType"`
-	AggregateType string `json:"aggregateType"`
-	AggregateID   string `json:"aggregateId"`
-	Sequence      int64  `json:"sequence"`
-	OccurredAt    string `json:"occurredAt"`
+	EventID        string         `json:"eventId"`
+	EventType      string         `json:"eventType"`
+	AggregateType  string         `json:"aggregateType"`
+	AggregateID    string         `json:"aggregateId"`
+	Sequence       int64          `json:"sequence"`
+	Cursor         int64          `json:"cursor"`
+	PayloadVersion int            `json:"payloadVersion"`
+	Payload        map[string]any `json:"payload,omitempty"`
+	OccurredAt     string         `json:"occurredAt"`
+	Attempts       int            `json:"attempts"`
+}
+
+// EventPage is a page of the change stream.
+type EventPage struct {
+	Items      []OutboxEvent `json:"items"`
+	NextCursor int64         `json:"nextCursor"`
 }
 
 // ContainmentResult summarizes a cross-namespace containment operation.
@@ -524,13 +537,48 @@ func (c *Client) ListEvidence(ctx context.Context) ([]LifecycleEvent, error) {
 	return out.Items, nil
 }
 
-// ListEvents returns the transactional outbox events.
+// ListEvents returns the change stream from the beginning.
 func (c *Client) ListEvents(ctx context.Context) ([]OutboxEvent, error) {
-	var out listResponse[OutboxEvent]
-	if err := c.do(ctx, http.MethodGet, "/v1/events", nil, &out); err != nil {
+	page, err := c.ReplayEvents(ctx, 0, 0)
+	if err != nil {
 		return nil, err
 	}
-	return out.Items, nil
+	return page.Items, nil
+}
+
+// ReplayEvents returns the change stream after a cursor. limit <= 0 means no bound.
+func (c *Client) ReplayEvents(ctx context.Context, after int64, limit int) (*EventPage, error) {
+	query := url.Values{"after": {strconv.FormatInt(after, 10)}}
+	if limit > 0 {
+		query.Set("limit", strconv.Itoa(limit))
+	}
+	var out EventPage
+	if err := c.do(ctx, http.MethodGet, "/v1/events?"+query.Encode(), nil, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// LeaseEvents claims a batch of pending events for at-least-once delivery.
+func (c *Client) LeaseEvents(ctx context.Context, owner string, limit, leaseSeconds int) (*EventPage, error) {
+	body := map[string]any{"owner": owner, "limit": limit, "leaseSeconds": leaseSeconds}
+	var out EventPage
+	if err := c.do(ctx, http.MethodPost, "/v1/events/lease", body, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// AckEvents marks leased events processed.
+func (c *Client) AckEvents(ctx context.Context, owner string, cursors []int64) error {
+	return c.do(ctx, http.MethodPost, "/v1/events/ack", map[string]any{"owner": owner, "cursors": cursors}, nil)
+}
+
+// NackEvents releases a lease for retry or dead-letters an exhausted event.
+func (c *Client) NackEvents(ctx context.Context, owner string, cursors []int64, reason string, maxAttempts int) error {
+	return c.do(ctx, http.MethodPost, "/v1/events/nack", map[string]any{
+		"owner": owner, "cursors": cursors, "reason": reason, "maxAttempts": maxAttempts,
+	}, nil)
 }
 
 func (c *Client) do(ctx context.Context, method, path string, body any, out any) error {

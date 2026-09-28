@@ -633,20 +633,89 @@ paths:
   /v1/events:
     get:
       operationId: listOutboxEvents
-      summary: List transactional outbox events.
+      summary: Replay the change stream after a cursor.
+      description: >
+        Returns events with cursor greater than `after`, ordered by cursor. A
+        consumer resumes by passing the `nextCursor` of the previous page.
+      parameters:
+        - name: after
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
       responses:
         '200':
-          description: Outbox event list.
+          description: Event page.
           content:
             application/json:
               schema:
-                type: object
-                required: [items]
-                properties:
-                  items:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/OutboxEvent'
+                $ref: '#/components/schemas/EventPage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /v1/events/lease:
+    post:
+      operationId: leaseOutboxEvents
+      summary: Lease a batch of pending events for at-least-once delivery.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventLeaseRequest'
+      responses:
+        '200':
+          description: Leased events.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventPage'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /v1/events/ack:
+    post:
+      operationId: ackOutboxEvents
+      summary: Mark leased events processed.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventCursorsRequest'
+      responses:
+        '200':
+          description: Ack result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventDeliveryResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+  /v1/events/nack:
+    post:
+      operationId: nackOutboxEvents
+      summary: Release a lease for retry, or dead-letter an exhausted event.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventNackRequest'
+      responses:
+        '200':
+          description: Nack result.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventDeliveryResult'
+        '400':
+          $ref: '#/components/responses/BadRequest'
   /v1/discovery-metadata:
     put:
       operationId: putDiscoveryMetadata
@@ -865,7 +934,7 @@ components:
           format: date-time
     OutboxEvent:
       type: object
-      required: [eventId, eventType, aggregateType, aggregateId, sequence, occurredAt]
+      required: [eventId, eventType, aggregateType, aggregateId, sequence, cursor, payloadVersion, occurredAt]
       properties:
         eventId:
           type: string
@@ -879,9 +948,71 @@ components:
         sequence:
           type: integer
           minimum: 1
+        cursor:
+          type: integer
+          minimum: 1
+        payloadVersion:
+          type: integer
+          minimum: 1
+        payload:
+          type: object
+          additionalProperties: true
         occurredAt:
           type: string
           format: date-time
+        attempts:
+          type: integer
+          minimum: 0
+    EventPage:
+      type: object
+      required: [items, nextCursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OutboxEvent'
+        nextCursor:
+          type: integer
+          minimum: 0
+    EventLeaseRequest:
+      type: object
+      properties:
+        owner:
+          type: string
+        limit:
+          type: integer
+          minimum: 1
+        leaseSeconds:
+          type: integer
+          minimum: 1
+    EventCursorsRequest:
+      type: object
+      required: [cursors]
+      properties:
+        owner:
+          type: string
+        cursors:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+    EventNackRequest:
+      allOf:
+        - $ref: '#/components/schemas/EventCursorsRequest'
+        - type: object
+          properties:
+            reason:
+              type: string
+            maxAttempts:
+              type: integer
+              minimum: 1
+    EventDeliveryResult:
+      type: object
+      properties:
+        acked:
+          type: integer
+        nacked:
+          type: integer
     AgentCreate:
       type: object
       required: [agentRef, name, purpose, sponsorRef, ownerRef, riskClass]

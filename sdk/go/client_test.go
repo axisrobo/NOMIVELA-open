@@ -108,6 +108,27 @@ func TestCommitInstanceSendsCallerIdempotencyKey(t *testing.T) {
 	}
 }
 
+func TestReplayEventsEncodesCursor(t *testing.T) {
+	var gotAfter, gotLimit string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotAfter = r.URL.Query().Get("after")
+		gotLimit = r.URL.Query().Get("limit")
+		_, _ = w.Write([]byte(`{"items":[{"eventId":"e1","eventType":"agent.active","aggregateType":"agent","aggregateId":"a1","sequence":1,"cursor":5,"payloadVersion":1,"payload":{"objectType":"agent"},"occurredAt":"2026-01-01T00:00:00Z","attempts":0}],"nextCursor":5}`))
+	}))
+	defer server.Close()
+
+	page, err := New(server.URL).ReplayEvents(context.Background(), 4, 10)
+	if err != nil {
+		t.Fatalf("replay: %v", err)
+	}
+	if gotAfter != "4" || gotLimit != "10" {
+		t.Fatalf("after=%s limit=%s", gotAfter, gotLimit)
+	}
+	if len(page.Items) != 1 || page.Items[0].Cursor != 5 || page.Items[0].Payload["objectType"] != "agent" || page.NextCursor != 5 {
+		t.Fatalf("page = %+v", page)
+	}
+}
+
 func TestGetDiscoveryAndJWKS(t *testing.T) {
 	var paths []string
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
