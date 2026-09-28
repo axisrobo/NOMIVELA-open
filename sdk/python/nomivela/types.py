@@ -62,6 +62,7 @@ class WorkloadRegistration:
     selector: Optional[dict[str, str]] = _json("selector")
     trust_domain: Optional[str] = _json("trustDomain")
     allowed_proof_methods: Optional[list[str]] = _json("allowedProofMethods")
+    proof_requirements: Optional[dict[str, Any]] = _json("proofRequirements")
     status: Optional[str] = _json("status")
     workload_epoch: Optional[int] = _json("workloadEpoch")
 

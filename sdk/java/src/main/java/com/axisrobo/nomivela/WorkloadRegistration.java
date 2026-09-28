@@ -11,6 +11,7 @@ public record WorkloadRegistration(
         Map<String, String> selector,
         String trustDomain,
         List<String> allowedProofMethods,
+        Map<String, Object> proofRequirements,
         String status,
         Long workloadEpoch) {
 }

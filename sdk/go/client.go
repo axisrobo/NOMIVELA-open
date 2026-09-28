@@ -120,16 +120,35 @@ type AgentIdentity struct {
 	AuthorityRootType string `json:"authorityRootType,omitempty"`
 }
 
+// ProofMethod is one acceptable attestation method with its profile version.
+type ProofMethod struct {
+	Method         string `json:"method"`
+	ProfileVersion string `json:"profileVersion"`
+}
+
+// ProofRequirements is the versioned proof profile for a workload.
+type ProofRequirements struct {
+	SchemaVersion             string        `json:"schemaVersion"`
+	Methods                   []ProofMethod `json:"methods"`
+	ExpectedIssuer            string        `json:"expectedIssuer,omitempty"`
+	ExpectedAudience          string        `json:"expectedAudience,omitempty"`
+	TrustDomain               string        `json:"trustDomain,omitempty"`
+	SelectorSchemaVersion     string        `json:"selectorSchemaVersion"`
+	AttestationDigestRequired bool          `json:"attestationDigestRequired,omitempty"`
+	VerifierIdentity          string        `json:"verifierIdentity,omitempty"`
+}
+
 // WorkloadRegistration is an approved deployment declaration.
 type WorkloadRegistration struct {
-	WorkloadRegistrationID string            `json:"workloadRegistrationId"`
-	Namespace              string            `json:"namespace"`
-	Platform               string            `json:"platform"`
-	Selector               map[string]string `json:"selector"`
-	TrustDomain            string            `json:"trustDomain"`
-	AllowedProofMethods    []string          `json:"allowedProofMethods"`
-	Status                 string            `json:"status"`
-	WorkloadEpoch          int64             `json:"workloadEpoch"`
+	WorkloadRegistrationID string             `json:"workloadRegistrationId"`
+	Namespace              string             `json:"namespace"`
+	Platform               string             `json:"platform"`
+	Selector               map[string]string  `json:"selector"`
+	TrustDomain            string             `json:"trustDomain"`
+	AllowedProofMethods    []string           `json:"allowedProofMethods"`
+	ProofRequirements      *ProofRequirements `json:"proofRequirements,omitempty"`
+	Status                 string             `json:"status"`
+	WorkloadEpoch          int64              `json:"workloadEpoch"`
 }
 
 // AgentInstance is a running instance of an Agent identity.
@@ -416,12 +435,13 @@ func (c *Client) TransitionIdentity(ctx context.Context, namespace, agentID, sta
 func (c *Client) CreateWorkloadRegistration(ctx context.Context, workload WorkloadRegistration, mut Mutation) (*WorkloadRegistration, error) {
 	body := struct {
 		Mutation
-		Namespace           string            `json:"namespace"`
-		Platform            string            `json:"platform"`
-		Selector            map[string]string `json:"selector"`
-		TrustDomain         string            `json:"trustDomain"`
-		AllowedProofMethods []string          `json:"allowedProofMethods"`
-	}{mut, workload.Namespace, workload.Platform, workload.Selector, workload.TrustDomain, workload.AllowedProofMethods}
+		Namespace           string             `json:"namespace"`
+		Platform            string             `json:"platform"`
+		Selector            map[string]string  `json:"selector"`
+		TrustDomain         string             `json:"trustDomain"`
+		AllowedProofMethods []string           `json:"allowedProofMethods"`
+		ProofRequirements   *ProofRequirements `json:"proofRequirements,omitempty"`
+	}{mut, workload.Namespace, workload.Platform, workload.Selector, workload.TrustDomain, workload.AllowedProofMethods, workload.ProofRequirements}
 	var out WorkloadRegistration
 	if err := c.do(ctx, http.MethodPost, "/v1/workload-registrations", body, &out); err != nil {
 		return nil, err

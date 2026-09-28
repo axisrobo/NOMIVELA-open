@@ -50,6 +50,7 @@ Open carries the public surface: OpenAPI, JSON Schema, conformance fixtures, SDK
 - Idempotent instance commit contract and a caller-supplied idempotency key in every SDK. Delivered at `1.4.0`.
 - Recoverable event stream contract (cursor replay, lease/ack/nack) and Go SDK event methods. Delivered at `1.6.0`.
 - Conditional reads and concurrency contract (ETag/If-None-Match, paginated collections with snapshotVersion, expected-epoch/If-Match). Delivered at `1.7.0`.
+- Versioned workload proof profile contract (`proofRequirements`) and SDK fields. Delivered at `1.8.0`.
 
 **Exit gate**
 

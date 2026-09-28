@@ -147,12 +147,21 @@ public final class Client {
 
     public WorkloadRegistration createWorkloadRegistration(String namespace, String platform, Map<String, String> selector,
                                                            String trustDomain, List<String> proofMethods, Mutation mutation) {
+        return createWorkloadRegistration(namespace, platform, selector, trustDomain, proofMethods, mutation, null);
+    }
+
+    public WorkloadRegistration createWorkloadRegistration(String namespace, String platform, Map<String, String> selector,
+                                                           String trustDomain, List<String> proofMethods, Mutation mutation,
+                                                           Map<String, Object> proofRequirements) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("namespace", namespace);
         body.put("platform", platform);
         body.put("selector", selector);
         body.put("trustDomain", trustDomain);
         body.put("allowedProofMethods", proofMethods);
+        if (proofRequirements != null) {
+            body.put("proofRequirements", proofRequirements);
+        }
         mutation.applyTo(body);
         return toWorkload(request("POST", "/v1/workload-registrations", body));
     }
@@ -350,9 +359,10 @@ public final class Client {
     }
 
     private static WorkloadRegistration toWorkload(Map<String, Object> map) {
+        Map<String, Object> proof = map.get("proofRequirements") instanceof Map<?, ?> nested ? castMap(nested) : null;
         return new WorkloadRegistration(text(map, "workloadRegistrationId"), text(map, "namespace"),
                 text(map, "platform"), stringMap(map, "selector"), text(map, "trustDomain"),
-                strings(map, "allowedProofMethods"), text(map, "status"), number(map, "workloadEpoch"));
+                strings(map, "allowedProofMethods"), proof, text(map, "status"), number(map, "workloadEpoch"));
     }
 
     private static AgentInstance toInstance(Map<String, Object> map) {

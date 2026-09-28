@@ -146,14 +146,25 @@ class Client:
 
     # -- Workloads -------------------------------------------------------
 
-    def create_workload_registration(self, namespace: str, platform: str, selector: dict[str, str], trust_domain: str, proof_methods: list[str], mutation: Optional[Mutation] = None) -> WorkloadRegistration:
-        body = {
+    def create_workload_registration(
+        self,
+        namespace: str,
+        platform: str,
+        selector: dict[str, str],
+        trust_domain: str,
+        proof_methods: list[str],
+        mutation: Optional[Mutation] = None,
+        proof_requirements: Optional[dict[str, Any]] = None,
+    ) -> WorkloadRegistration:
+        body: dict[str, Any] = {
             "namespace": namespace,
             "platform": platform,
             "selector": selector,
             "trustDomain": trust_domain,
             "allowedProofMethods": proof_methods,
         }
+        if proof_requirements is not None:
+            body["proofRequirements"] = proof_requirements
         body.update((mutation or Mutation()).payload())
         return _build(WorkloadRegistration, self._request("POST", "/v1/workload-registrations", body))
 
