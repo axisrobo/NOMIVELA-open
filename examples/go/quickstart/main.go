@@ -11,7 +11,7 @@ import (
 	"log"
 	"time"
 
-	nomivela "github.com/axisrobo/nomivela-open/sdk/go"
+	nomivela "github.com/axisrobo/nomivela-open/v2/sdk/go"
 )
 
 func main() {

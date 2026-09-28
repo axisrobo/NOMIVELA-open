@@ -1,4 +1,4 @@
-module github.com/axisrobo/nomivela-open
+module github.com/axisrobo/nomivela-open/v2
 
 go 1.25
 
