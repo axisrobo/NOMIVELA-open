@@ -1,5 +1,5 @@
 {
-  "defaultSchema": "../contracts/schemas/agent-registry-v0.1.schema.json",
+  "defaultSchema": "../contracts/schemas/agent-registry-v1.0.schema.json",
   "cases": [
     {"file": "valid-agent.json", "definition": "AgentRecord", "valid": true},
     {"file": "invalid-agent-ref.json", "definition": "AgentRecord", "valid": false},

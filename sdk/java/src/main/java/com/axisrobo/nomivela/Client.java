@@ -211,7 +211,69 @@ public final class Client {
     }
 
     public List<OutboxEvent> listEvents() {
-        return items("/v1/events").stream().map(Client::toOutboxEvent).toList();
+        return replayEvents(0, 0).items();
+    }
+
+    // -- Registry context ------------------------------------------------
+
+    public RegistryContext getRegistryContext(String namespace, String agentId, String instanceId, String workloadRegistrationId) {
+        StringBuilder path = new StringBuilder("/v1/registry-context?namespace=").append(encode(namespace))
+                .append("&agentId=").append(encode(agentId));
+        if (instanceId != null && !instanceId.isEmpty()) {
+            path.append("&instanceId=").append(encode(instanceId));
+        }
+        if (workloadRegistrationId != null && !workloadRegistrationId.isEmpty()) {
+            path.append("&workloadRegistrationId=").append(encode(workloadRegistrationId));
+        }
+        return toRegistryContext(request("GET", path.toString(), null));
+    }
+
+    public RegistryContext getRegistryContext(String namespace, String agentId) {
+        return getRegistryContext(namespace, agentId, null, null);
+    }
+
+    // -- Discovery -------------------------------------------------------
+
+    public DiscoveryDocument getDiscovery(String namespace) {
+        return toDiscovery(request("GET", "/.well-known/agent-iam?namespace=" + encode(namespace), null));
+    }
+
+    public Jwks getDiscoveryJwks() {
+        return new Jwks(mapList(request("GET", "/.well-known/agent-iam/jwks.json", null), "keys"));
+    }
+
+    // -- Event stream ----------------------------------------------------
+
+    public EventPage replayEvents(long after, int limit) {
+        StringBuilder path = new StringBuilder("/v1/events?after=").append(after);
+        if (limit > 0) {
+            path.append("&limit=").append(limit);
+        }
+        return toEventPage(request("GET", path.toString(), null));
+    }
+
+    public EventPage leaseEvents(String owner, int limit, int leaseSeconds) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("owner", owner);
+        body.put("limit", limit);
+        body.put("leaseSeconds", leaseSeconds);
+        return toEventPage(request("POST", "/v1/events/lease", body));
+    }
+
+    public Map<String, Object> ackEvents(String owner, List<Long> cursors) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("owner", owner);
+        body.put("cursors", cursors);
+        return request("POST", "/v1/events/ack", body);
+    }
+
+    public Map<String, Object> nackEvents(String owner, List<Long> cursors, String reason, int maxAttempts) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("owner", owner);
+        body.put("cursors", cursors);
+        body.put("reason", reason);
+        body.put("maxAttempts", maxAttempts);
+        return request("POST", "/v1/events/nack", body);
     }
 
     // -- Transport -------------------------------------------------------
@@ -378,8 +440,46 @@ public final class Client {
     }
 
     private static OutboxEvent toOutboxEvent(Map<String, Object> map) {
+        Map<String, Object> payload = map.get("payload") instanceof Map<?, ?> nested ? castMap(nested) : null;
         return new OutboxEvent(text(map, "eventId"), text(map, "eventType"), text(map, "aggregateType"),
-                text(map, "aggregateId"), number(map, "sequence"), text(map, "occurredAt"));
+                text(map, "aggregateId"), number(map, "sequence"), number(map, "cursor"),
+                number(map, "payloadVersion"), payload, text(map, "occurredAt"), number(map, "attempts"));
+    }
+
+    private static EventPage toEventPage(Map<String, Object> payload) {
+        List<OutboxEvent> events = new ArrayList<>();
+        for (Map<String, Object> item : mapList(payload, "items")) {
+            events.add(toOutboxEvent(item));
+        }
+        return new EventPage(events, number(payload, "nextCursor"));
+    }
+
+    private static RegistryContext toRegistryContext(Map<String, Object> map) {
+        Namespace namespace = map.get("namespace") instanceof Map<?, ?> ns ? toNamespace(castMap(ns)) : null;
+        Agent agent = map.get("agent") instanceof Map<?, ?> a ? toAgent(castMap(a)) : null;
+        AgentIdentity identity = map.get("identity") instanceof Map<?, ?> i ? toIdentity(castMap(i)) : null;
+        WorkloadRegistration workload = map.get("workloadRegistration") instanceof Map<?, ?> w ? toWorkload(castMap(w)) : null;
+        AgentInstance instance = map.get("instance") instanceof Map<?, ?> inst ? toInstance(castMap(inst)) : null;
+        return new RegistryContext(namespace, agent, identity, workload, instance);
+    }
+
+    private static DiscoveryDocument toDiscovery(Map<String, Object> map) {
+        return new DiscoveryDocument(text(map, "namespace"), text(map, "registryEndpoint"), text(map, "issuer"),
+                text(map, "jwksUri"), strings(map, "supportedProofProfiles"), strings(map, "supportedArtifactTypes"),
+                text(map, "keyRotation"), text(map, "discoveryVersion"), text(map, "issuedAt"), text(map, "expiresAt"),
+                text(map, "signingKid"), text(map, "alg"), text(map, "signature"));
+    }
+
+    private static List<Map<String, Object>> mapList(Map<String, Object> map, String key) {
+        List<Map<String, Object>> result = new ArrayList<>();
+        if (map.get(key) instanceof List<?> list) {
+            for (Object item : list) {
+                if (item instanceof Map<?, ?> nested) {
+                    result.add(castMap(nested));
+                }
+            }
+        }
+        return result;
     }
 
     private static ContainmentResult toContainment(Map<String, Object> map) {

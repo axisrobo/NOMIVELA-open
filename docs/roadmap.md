@@ -11,7 +11,7 @@ Open carries the public surface: OpenAPI, JSON Schema, conformance fixtures, SDK
 **Deliverables**
 
 - Core health and readiness contract.
-- Agent Registry v0.1 OpenAPI and JSON Schema for Namespace, Agent Record, Agent Identity, Authority Binding, Workload Registration, Agent Instance, Discovery Document, lifecycle event, and outbox event.
+- Agent Registry OpenAPI and JSON Schema for Namespace, Agent Record, Agent Identity, Authority Binding, Workload Registration, Agent Instance, Discovery Document, lifecycle event, and outbox event (published as `v0.1`, graduated to `v1.0`).
 - Conformance fixtures with positive and negative Agent Record cases.
 - Public Go module and repository structure.
 
@@ -23,7 +23,7 @@ Open carries the public surface: OpenAPI, JSON Schema, conformance fixtures, SDK
 
 **Deliverables**
 
-- Complete versioned contracts for namespace, Agent, identity, immutable binding, workload, instance, discovery, evidence, and events. Published in `contracts/agent-registry-v0.1.openapi.yaml`. Done.
+- Complete versioned contracts for namespace, Agent, identity, immutable binding, workload, instance, discovery, evidence, and events. Published in `contracts/agent-registry-v1.0.openapi.yaml`. Done.
 - Schema-driven conformance fixtures and a `go test ./conformance/...` suite covering valid and invalid cases for Namespace, AgentRecord, AgentIdentity, and DiscoveryDocument. Done.
 - Go SDK for the registration, lifecycle, containment, and evidence API in `sdk/go`. Done.
 - Public CLI (`cli/nomivela`) for namespace, Agent, identity, workload, instance, evidence, and event workflows. Done.

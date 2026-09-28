@@ -15,10 +15,14 @@ from .types import (
     AgentIdentity,
     AgentInstance,
     ContainmentResult,
+    DiscoveryDocument,
+    EventPage,
     InstanceCommit,
+    JWKS,
     LifecycleEvent,
     Namespace,
     OutboxEvent,
+    RegistryContext,
     WorkloadRegistration,
     _build,
 )
@@ -212,8 +216,59 @@ class Client:
     def list_evidence(self) -> list[LifecycleEvent]:
         return [_build(LifecycleEvent, item) for item in self._items("/v1/evidence")]
 
+    # -- Registry context ------------------------------------------------
+
+    def get_registry_context(
+        self,
+        namespace: str,
+        agent_id: str,
+        instance_id: Optional[str] = None,
+        workload_registration_id: Optional[str] = None,
+    ) -> RegistryContext:
+        query: dict[str, str] = {"namespace": namespace, "agentId": agent_id}
+        if instance_id:
+            query["instanceId"] = instance_id
+        if workload_registration_id:
+            query["workloadRegistrationId"] = workload_registration_id
+        return _build(RegistryContext, self._request("GET", "/v1/registry-context?" + urllib.parse.urlencode(query)))
+
+    # -- Discovery -------------------------------------------------------
+
+    def get_discovery(self, namespace: str) -> DiscoveryDocument:
+        query = urllib.parse.urlencode({"namespace": namespace})
+        return _build(DiscoveryDocument, self._request("GET", f"/.well-known/agent-iam?{query}"))
+
+    def get_discovery_jwks(self) -> JWKS:
+        return _build(JWKS, self._request("GET", "/.well-known/agent-iam/jwks.json"))
+
+    # -- Event stream ----------------------------------------------------
+
+    def replay_events(self, after: int = 0, limit: int = 0) -> EventPage:
+        query: dict[str, int] = {"after": after}
+        if limit > 0:
+            query["limit"] = limit
+        return self._event_page(self._request("GET", "/v1/events?" + urllib.parse.urlencode(query)))
+
+    def lease_events(self, owner: str, limit: int = 0, lease_seconds: int = 0) -> EventPage:
+        body = {"owner": owner, "limit": limit, "leaseSeconds": lease_seconds}
+        return self._event_page(self._request("POST", "/v1/events/lease", body))
+
+    @staticmethod
+    def _event_page(payload: dict[str, Any]) -> EventPage:
+        page = _build(EventPage, payload)
+        page.items = [_build(OutboxEvent, item) for item in (payload.get("items") or [])]
+        return page
+
+    def ack_events(self, owner: str, cursors: list[int]) -> dict[str, Any]:
+        return self._request("POST", "/v1/events/ack", {"owner": owner, "cursors": cursors})
+
+    def nack_events(self, owner: str, cursors: list[int], reason: str = "", max_attempts: int = 0) -> dict[str, Any]:
+        body = {"owner": owner, "cursors": cursors, "reason": reason, "maxAttempts": max_attempts}
+        return self._request("POST", "/v1/events/nack", body)
+
     def list_events(self) -> list[OutboxEvent]:
-        return [_build(OutboxEvent, item) for item in self._items("/v1/events")]
+        page = self.replay_events()
+        return list(page.items or [])
 
     # -- Transport -------------------------------------------------------
 

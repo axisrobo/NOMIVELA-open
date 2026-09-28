@@ -36,7 +36,7 @@ NOMIVELA Open 是 NOMIVELA 的公开发布仓库，包含：
 
 本仓库不包含 Core 源码、企业版（Enterprise Edition）代码、内部设计文档或任何凭据。
 
-运行 API 见 `contracts/core-api.openapi.yaml`；Agent Registry 契约见 `contracts/agent-registry-v0.1.openapi.yaml`。
+运行 API 见 `contracts/core-api.openapi.yaml`；Agent Registry 契约见 `contracts/agent-registry-v1.0.openapi.yaml`。
 
 ## 仓库家族
 

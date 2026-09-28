@@ -165,6 +165,82 @@ class ClientTest(unittest.TestCase):
         commit_body = self.stub.requests[1]["body"]
         self.assertEqual(commit_body["leaseExpiresAt"], "2999-01-01T00:00:00Z")
 
+    def test_registry_context_and_event_stream(self):
+        def respond(method, path, body):
+            if path == "/v1/registry-context":
+                return 200, {
+                    "namespace": {"namespace": "https://auth.example.com", "status": "active", "namespaceEpoch": 1},
+                    "agent": {"agentRef": "agent_x", "state": "active", "agentEpoch": 1},
+                    "identity": {"agentId": "id-1", "state": "active", "identityEpoch": 2},
+                }
+            if path == "/v1/events":
+                return 200, {
+                    "items": [
+                        {
+                            "eventId": "e1",
+                            "eventType": "agent.active",
+                            "aggregateType": "agent",
+                            "aggregateId": "agent_x",
+                            "sequence": 1,
+                            "cursor": 5,
+                            "payloadVersion": 1,
+                            "payload": {"objectType": "agent"},
+                            "occurredAt": "2026-01-01T00:00:00Z",
+                            "attempts": 0,
+                        }
+                    ],
+                    "nextCursor": 5,
+                }
+            if path == "/v1/events/lease":
+                return 200, {"items": [], "nextCursor": 0}
+            if path == "/v1/events/ack":
+                return 200, {"acked": 1}
+            raise AssertionError(f"unexpected path {path}")
+
+        self.stub = StubServer(respond)
+        client = Client(self.stub.url)
+
+        context = client.get_registry_context("https://auth.example.com", "id-1")
+        self.assertEqual(context.identity["agentId"], "id-1")
+        self.assertEqual(context.agent["agentRef"], "agent_x")
+
+        page = client.replay_events(after=4, limit=10)
+        self.assertEqual(page.items[0].cursor, 5)
+        self.assertEqual(page.next_cursor, 5)
+        self.assertEqual(self.stub.requests[1]["query"]["after"], ["4"])
+        self.assertEqual(self.stub.requests[1]["query"]["limit"], ["10"])
+
+        client.lease_events("consumer-1", limit=10, lease_seconds=30)
+        self.assertEqual(self.stub.requests[2]["body"]["owner"], "consumer-1")
+
+        client.ack_events("consumer-1", [5])
+        self.assertEqual(self.stub.requests[3]["body"]["cursors"], [5])
+
+    def test_discovery(self):
+        def respond(method, path, body):
+            if path == "/.well-known/agent-iam/jwks.json":
+                return 200, {"keys": [{"kty": "OKP", "crv": "Ed25519", "kid": "k1", "alg": "EdDSA", "use": "sig", "x": "abc"}]}
+            if path == "/.well-known/agent-iam":
+                return 200, {
+                    "namespace": "https://auth.example.com",
+                    "registryEndpoint": "https://registry.example.com",
+                    "issuer": "https://idp.example.com",
+                    "jwksUri": "https://idp.example.com/jwks",
+                    "supportedProofProfiles": ["private_key_jwt"],
+                    "signingKid": "k1",
+                    "alg": "EdDSA",
+                    "signature": "sig",
+                }
+            raise AssertionError(f"unexpected path {path}")
+
+        self.stub = StubServer(respond)
+        client = Client(self.stub.url)
+        document = client.get_discovery("https://auth.example.com")
+        self.assertEqual(document.signing_kid, "k1")
+        self.assertEqual(document.signature, "sig")
+        jwks = client.get_discovery_jwks()
+        self.assertEqual(jwks.keys[0]["kid"], "k1")
+
     def test_create_agent_sends_form_and_carriers(self):
         def respond(method, path, body):
             return 201, {"agentRef": "agent_edge_twin", "agentClass": "asset_twin", "carrierRefs": ["device:gateway-7"], "state": "draft", "agentEpoch": 1}

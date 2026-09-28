@@ -103,7 +103,50 @@ class OutboxEvent:
     aggregate_type: Optional[str] = _json("aggregateType")
     aggregate_id: Optional[str] = _json("aggregateId")
     sequence: Optional[int] = _json("sequence")
+    cursor: Optional[int] = _json("cursor")
+    payload_version: Optional[int] = _json("payloadVersion")
+    payload: Optional[dict[str, Any]] = _json("payload")
     occurred_at: Optional[str] = _json("occurredAt")
+    attempts: Optional[int] = _json("attempts")
+
+
+@dataclass
+class EventPage:
+    items: Optional[list[OutboxEvent]] = _json("items")
+    next_cursor: Optional[int] = _json("nextCursor")
+
+
+@dataclass
+class RegistryContext:
+    """A consistent point-in-time Registry read for one Agent identity."""
+
+    namespace: Optional[Any] = _json("namespace")
+    agent: Optional[Any] = _json("agent")
+    identity: Optional[Any] = _json("identity")
+    workload_registration: Optional[Any] = _json("workloadRegistration")
+    instance: Optional[Any] = _json("instance")
+
+
+@dataclass
+class DiscoveryDocument:
+    namespace: Optional[str] = _json("namespace")
+    registry_endpoint: Optional[str] = _json("registryEndpoint")
+    issuer: Optional[str] = _json("issuer")
+    jwks_uri: Optional[str] = _json("jwksUri")
+    supported_proof_profiles: Optional[list[str]] = _json("supportedProofProfiles")
+    supported_artifact_types: Optional[list[str]] = _json("supportedArtifactTypes")
+    key_rotation: Optional[str] = _json("keyRotation")
+    discovery_version: Optional[str] = _json("discoveryVersion")
+    issued_at: Optional[str] = _json("issuedAt")
+    expires_at: Optional[str] = _json("expiresAt")
+    signing_kid: Optional[str] = _json("signingKid")
+    alg: Optional[str] = _json("alg")
+    signature: Optional[str] = _json("signature")
+
+
+@dataclass
+class JWKS:
+    keys: Optional[list[dict[str, Any]]] = _json("keys")
 
 
 @dataclass

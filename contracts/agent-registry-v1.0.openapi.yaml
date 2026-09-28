@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: NOMIVELA Agent Registry API
-  version: 0.1.0
+  version: 1.0.0
   description: >
     Registration and discovery contract for the Agent Registry and Namespace Authority.
     Token issuance, workload authentication, and authorization are outside this API

@@ -73,6 +73,43 @@ class ClientTest {
     }
 
     @Test
+    void registryContextDiscoveryAndEvents() {
+        handler = request -> switch (request.path()) {
+            case "/v1/registry-context" -> new Stub(200,
+                    "{\"namespace\":{\"namespace\":\"https://auth.example.com\",\"status\":\"active\",\"namespaceEpoch\":1},"
+                            + "\"agent\":{\"agentRef\":\"agent_x\"},\"identity\":{\"agentId\":\"id-1\"}}");
+            case "/v1/events" -> new Stub(200,
+                    "{\"items\":[{\"eventId\":\"e1\",\"eventType\":\"agent.active\",\"aggregateType\":\"agent\","
+                            + "\"aggregateId\":\"agent_x\",\"sequence\":1,\"cursor\":5,\"payloadVersion\":1,"
+                            + "\"payload\":{\"objectType\":\"agent\"},\"occurredAt\":\"2026-01-01T00:00:00Z\",\"attempts\":0}],"
+                            + "\"nextCursor\":5}");
+            case "/.well-known/agent-iam/jwks.json" -> new Stub(200, "{\"keys\":[{\"kid\":\"k1\"}]}");
+            case "/.well-known/agent-iam" -> new Stub(200,
+                    "{\"namespace\":\"https://auth.example.com\",\"signingKid\":\"k1\",\"signature\":\"sig\"}");
+            default -> throw new IllegalStateException("unexpected path " + request.path());
+        };
+
+        Client client = new Client(baseUrl);
+
+        RegistryContext context = client.getRegistryContext("https://auth.example.com", "id-1");
+        assertEquals("id-1", context.identity().agentId());
+        assertEquals("agent_x", context.agent().agentRef());
+
+        EventPage page = client.replayEvents(4, 10);
+        assertEquals(1, page.items().size());
+        assertEquals(5L, page.items().get(0).cursor());
+        assertEquals(5L, page.nextCursor());
+        assertTrue(recorded.get(1).query().contains("after=4"));
+
+        Jwks jwks = client.getDiscoveryJwks();
+        assertEquals("k1", jwks.keys().get(0).get("kid"));
+
+        DiscoveryDocument document = client.getDiscovery("https://auth.example.com");
+        assertEquals("k1", document.signingKid());
+        assertEquals("sig", document.signature());
+    }
+
+    @Test
     void createNamespaceSendsContractHeadersAndBody() {
         handler = request -> new Stub(201,
                 "{\"namespace\":\"https://auth.example.com\",\"authorityRootRef\":\"root:org-a\",\"status\":\"active\",\"namespaceEpoch\":1}");

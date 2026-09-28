@@ -14,8 +14,8 @@ import (
 // COMPATIBILITY.md together.
 func TestContractVersionIsStable(t *testing.T) {
 	expected := []string{
-		"../contracts/agent-registry-v0.1.openapi.yaml",
-		"../contracts/schemas/agent-registry-v0.1.schema.json",
+		"../contracts/agent-registry-v1.0.openapi.yaml",
+		"../contracts/schemas/agent-registry-v1.0.schema.json",
 		"../contracts/schemas/eidovela-v1-compat.schema.json",
 	}
 	for _, path := range expected {
@@ -24,15 +24,15 @@ func TestContractVersionIsStable(t *testing.T) {
 		}
 	}
 
-	openapi, err := os.ReadFile("../contracts/agent-registry-v0.1.openapi.yaml")
+	openapi, err := os.ReadFile("../contracts/agent-registry-v1.0.openapi.yaml")
 	if err != nil {
 		t.Fatalf("read openapi: %v", err)
 	}
-	if !strings.Contains(string(openapi), "version: 0.1.0") {
-		t.Fatal("agent-registry contract version must be 0.1.0; see COMPATIBILITY.md before changing it")
+	if !strings.Contains(string(openapi), "version: 1.0.0") {
+		t.Fatal("agent-registry contract version must be 1.0.0; see COMPATIBILITY.md before changing it")
 	}
 
-	assertSchemaID(t, "../contracts/schemas/agent-registry-v0.1.schema.json", "agent-registry-v0.1")
+	assertSchemaID(t, "../contracts/schemas/agent-registry-v1.0.schema.json", "agent-registry-v1.0")
 	assertSchemaID(t, "../contracts/schemas/eidovela-v1-compat.schema.json", "eidovela-v1-compat")
 }
 

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/axisrobo/nomivela-open/contracts/schemas/agent-registry-v0.1.schema.json",
-  "title": "NOMIVELA Agent Registry v0.1",
+  "$id": "https://github.com/axisrobo/nomivela-open/contracts/schemas/agent-registry-v1.0.schema.json",
+  "title": "NOMIVELA Agent Registry v1.0",
   "type": "object",
   "$defs": {
     "Namespace": {
