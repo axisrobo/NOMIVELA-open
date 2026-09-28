@@ -58,7 +58,7 @@ Open carries the public surface: OpenAPI, JSON Schema, conformance fixtures, SDK
 **Deliverables**
 
 - Federation and SCIM contract profiles.
-- Signed discovery and trust-bundle contracts.
+- Signed discovery and trust-bundle contracts. Signed discovery (Ed25519 signature, `/.well-known/agent-iam/jwks.json`, SDK discovery reads) delivered at `1.5.0`; trust-bundle contracts remain.
 - Edge projection contract for read-only regional consumers.
 
 **Exit gate**

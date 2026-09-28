@@ -716,6 +716,17 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DiscoveryDocument'
+  /.well-known/agent-iam/jwks.json:
+    get:
+      operationId: getAgentIAMDiscoveryJWKS
+      summary: Registry discovery signing keys.
+      responses:
+        '200':
+          description: JSON Web Key Set of the registry discovery signing keys.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JWKS'
 components:
   securitySchemes:
     bearerAuth:
@@ -983,6 +994,54 @@ components:
           type: array
           items:
             type: string
+        supportedArtifactTypes:
+          type: array
+          items:
+            type: string
+        keyRotation:
+          type: string
+        discoveryVersion:
+          type: string
+        issuedAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        signingKid:
+          type: string
+        alg:
+          type: string
+        signature:
+          type: string
+          description: >
+            Base64url Ed25519 signature over the canonical document: the
+            JSON object without `signature`, with sorted keys and RFC 3339 UTC
+            timestamps.
+    JWK:
+      type: object
+      required: [kty, crv, kid, alg, use, x]
+      properties:
+        kty:
+          type: string
+        crv:
+          type: string
+        kid:
+          type: string
+        alg:
+          type: string
+        use:
+          type: string
+        x:
+          type: string
+    JWKS:
+      type: object
+      required: [keys]
+      properties:
+        keys:
+          type: array
+          items:
+            $ref: '#/components/schemas/JWK'
     WorkloadRegistrationCreate:
       type: object
       required: [namespace, platform, selector, trustDomain, allowedProofMethods]

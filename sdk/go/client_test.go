@@ -108,6 +108,37 @@ func TestCommitInstanceSendsCallerIdempotencyKey(t *testing.T) {
 	}
 }
 
+func TestGetDiscoveryAndJWKS(t *testing.T) {
+	var paths []string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		paths = append(paths, r.URL.Path)
+		if r.URL.Path == "/.well-known/agent-iam/jwks.json" {
+			_, _ = w.Write([]byte(`{"keys":[{"kty":"OKP","crv":"Ed25519","kid":"k1","alg":"EdDSA","use":"sig","x":"abc"}]}`))
+			return
+		}
+		if r.URL.Query().Get("namespace") != "https://auth.example.com" {
+			t.Errorf("namespace = %q", r.URL.Query().Get("namespace"))
+		}
+		_, _ = w.Write([]byte(`{"discoveryVersion":"1","namespace":"https://auth.example.com","registryEndpoint":"https://registry.example.com","issuer":"https://idp.example.com","jwksUri":"https://idp.example.com/jwks.json","supportedProofProfiles":["private_key_jwt"],"signingKid":"k1","alg":"EdDSA","signature":"sig"}`))
+	}))
+	defer server.Close()
+
+	document, err := New(server.URL).GetDiscovery(context.Background(), "https://auth.example.com")
+	if err != nil {
+		t.Fatalf("discovery: %v", err)
+	}
+	if document.SigningKID != "k1" || document.Signature != "sig" || document.DiscoveryVersion != "1" {
+		t.Fatalf("document = %+v", document)
+	}
+	jwks, err := New(server.URL).GetDiscoveryJWKS(context.Background())
+	if err != nil {
+		t.Fatalf("jwks: %v", err)
+	}
+	if len(jwks.Keys) != 1 || jwks.Keys[0].Kid != "k1" {
+		t.Fatalf("jwks = %+v", jwks)
+	}
+}
+
 func TestGetRegistryContextEncodesSelectors(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v1/registry-context" {

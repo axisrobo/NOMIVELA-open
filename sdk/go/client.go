@@ -151,6 +151,40 @@ type RegistryContext struct {
 	Instance             *AgentInstance        `json:"instance,omitempty"`
 }
 
+// DiscoveryDocument is the registry-published discovery metadata. A signed
+// deployment adds DiscoveryVersion, IssuedAt, ExpiresAt, SigningKID, Alg, and
+// Signature; a consumer verifies Signature with the key named by SigningKID.
+type DiscoveryDocument struct {
+	DiscoveryVersion       string   `json:"discoveryVersion,omitempty"`
+	Namespace              string   `json:"namespace"`
+	RegistryEndpoint       string   `json:"registryEndpoint"`
+	Issuer                 string   `json:"issuer"`
+	JWKSUri                string   `json:"jwksUri"`
+	SupportedProofProfiles []string `json:"supportedProofProfiles"`
+	SupportedArtifactTypes []string `json:"supportedArtifactTypes,omitempty"`
+	KeyRotation            string   `json:"keyRotation,omitempty"`
+	IssuedAt               string   `json:"issuedAt,omitempty"`
+	ExpiresAt              string   `json:"expiresAt,omitempty"`
+	SigningKID             string   `json:"signingKid,omitempty"`
+	Alg                    string   `json:"alg,omitempty"`
+	Signature              string   `json:"signature,omitempty"`
+}
+
+// JWK is a JSON Web Key.
+type JWK struct {
+	Kty string `json:"kty"`
+	Crv string `json:"crv"`
+	Kid string `json:"kid"`
+	Alg string `json:"alg"`
+	Use string `json:"use"`
+	X   string `json:"x"`
+}
+
+// JWKS is a JSON Web Key Set.
+type JWKS struct {
+	Keys []JWK `json:"keys"`
+}
+
 // LifecycleEvent is append-only evidence of a state transition.
 type LifecycleEvent struct {
 	EventID       string `json:"eventId"`
@@ -457,6 +491,25 @@ func (c *Client) TransitionInstance(ctx context.Context, instanceID, state strin
 	}{mut, state}
 	var out AgentInstance
 	if err := c.do(ctx, http.MethodPost, "/v1/instances/"+instanceID+"/lifecycle", body, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// GetDiscovery resolves the registry discovery document for a namespace. The
+// document is signed when the deployment configures a signing key.
+func (c *Client) GetDiscovery(ctx context.Context, namespace string) (*DiscoveryDocument, error) {
+	var out DiscoveryDocument
+	if err := c.do(ctx, http.MethodGet, "/.well-known/agent-iam?namespace="+urlQueryEscape(namespace), nil, &out); err != nil {
+		return nil, err
+	}
+	return &out, nil
+}
+
+// GetDiscoveryJWKS returns the registry discovery signing keys.
+func (c *Client) GetDiscoveryJWKS(ctx context.Context) (*JWKS, error) {
+	var out JWKS
+	if err := c.do(ctx, http.MethodGet, "/.well-known/agent-iam/jwks.json", nil, &out); err != nil {
 		return nil, err
 	}
 	return &out, nil
