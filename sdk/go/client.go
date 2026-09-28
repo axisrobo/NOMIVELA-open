@@ -76,9 +76,14 @@ func New(baseURL string, opts ...Option) *Client {
 }
 
 // Mutation carries the attribution recorded for a state change.
+//
+// ExpectedEpoch is an optional optimistic-concurrency precondition: when
+// non-zero the object's current epoch must match or the mutation returns a
+// conflict.
 type Mutation struct {
-	Reason      string `json:"reason,omitempty"`
-	EvidenceRef string `json:"evidenceRef,omitempty"`
+	Reason        string `json:"reason,omitempty"`
+	EvidenceRef   string `json:"evidenceRef,omitempty"`
+	ExpectedEpoch int64  `json:"expectedEpoch,omitempty"`
 }
 
 // Namespace is an authority namespace.

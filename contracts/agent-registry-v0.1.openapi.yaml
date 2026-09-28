@@ -13,6 +13,11 @@ info:
     a namespace-scoped principal is limited to its namespaces and an out-of-scope
     request returns `403` with code `insufficient_scope`. Health, readiness,
     metrics, and `/.well-known/` stay public.
+    Mutations accept an optional optimistic-concurrency precondition: an
+    `expectedEpoch` body field or an `If-Match` header carrying the object's
+    current epoch. A mismatch returns `409` with code `conflict`. Point reads
+    return an `ETag` and honor `If-None-Match` with `304 Not Modified`;
+    collections return `nextCursor` and `snapshotVersion`.
 servers:
   - url: http://localhost:8080
 paths:
@@ -43,19 +48,23 @@ paths:
     get:
       operationId: listNamespaces
       summary: List authority namespaces.
+      parameters:
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Limit'
       responses:
         '200':
           description: Namespace list.
           content:
             application/json:
               schema:
-                type: object
-                required: [items]
-                properties:
-                  items:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Namespace'
+                allOf:
+                  - $ref: '#/components/schemas/CollectionMeta'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Namespace'
   /v1/agents:
     post:
       operationId: createAgent
@@ -83,19 +92,23 @@ paths:
     get:
       operationId: listAgents
       summary: List Agent Records.
+      parameters:
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Limit'
       responses:
         '200':
           description: Agent list.
           content:
             application/json:
               schema:
-                type: object
-                required: [items]
-                properties:
-                  items:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Agent'
+                allOf:
+                  - $ref: '#/components/schemas/CollectionMeta'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Agent'
   /v1/agents/{agentRef}/lifecycle:
     post:
       operationId: transitionAgent
@@ -201,19 +214,22 @@ paths:
           required: true
           schema:
             type: string
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Limit'
       responses:
         '200':
           description: Agent identity list.
           content:
             application/json:
               schema:
-                type: object
-                required: [items]
-                properties:
-                  items:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/AgentIdentity'
+                allOf:
+                  - $ref: '#/components/schemas/CollectionMeta'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AgentIdentity'
   /v1/registry-context:
     get:
       operationId: getRegistryContext
@@ -236,19 +252,25 @@ paths:
           in: query
           required: false
           schema: { type: string, format: uuid }
+        - $ref: '#/components/parameters/IfNoneMatch'
       responses:
         '200':
           description: Consistent Registry Context.
+          headers:
+            ETag:
+              schema:
+                type: string
+              description: Validator over the returned states, epochs, and lease.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RegistryContext'
+        '304':
+          description: The Context is unchanged for the supplied If-None-Match.
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
-        '400':
-          $ref: '#/components/responses/BadRequest'
   /v1/agent-identities/{agentID}/binding:
     post:
       operationId: bindAgentIdentity
@@ -338,19 +360,22 @@ paths:
           required: true
           schema:
             type: string
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Limit'
       responses:
         '200':
           description: Workload list.
           content:
             application/json:
               schema:
-                type: object
-                required: [items]
-                properties:
-                  items:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/WorkloadRegistration'
+                allOf:
+                  - $ref: '#/components/schemas/CollectionMeta'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/WorkloadRegistration'
   /v1/workload-registrations/{workloadRegistrationID}/lifecycle:
     post:
       operationId: transitionWorkloadRegistration
@@ -439,19 +464,22 @@ paths:
           required: true
           schema:
             type: string
+        - $ref: '#/components/parameters/After'
+        - $ref: '#/components/parameters/Limit'
       responses:
         '200':
           description: Instance list.
           content:
             application/json:
               schema:
-                type: object
-                required: [items]
-                properties:
-                  items:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/AgentInstance'
+                allOf:
+                  - $ref: '#/components/schemas/CollectionMeta'
+                  - type: object
+                    properties:
+                      items:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AgentInstance'
   /v1/instances/{instanceID}/lifecycle:
     post:
       operationId: transitionInstance
@@ -824,6 +852,38 @@ components:
       schema:
         type: string
       description: Principal responsible for the mutation; recorded in lifecycle evidence.
+    IfMatch:
+      name: If-Match
+      in: header
+      required: false
+      schema:
+        type: string
+      description: >
+        Optional optimistic-concurrency precondition. The value is the object's
+        current epoch; a mismatch returns `409` with code `conflict`. A mutation
+        body may instead carry `expectedEpoch`.
+    IfNoneMatch:
+      name: If-None-Match
+      in: header
+      required: false
+      schema:
+        type: string
+      description: Return `304 Not Modified` when the resource `ETag` still matches.
+    After:
+      name: after
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Return items whose key sorts after this cursor; use `nextCursor` from the previous page.
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+      description: Maximum number of items in the page; `0` means no bound.
     AgentRef:
       name: agentRef
       in: path
@@ -864,6 +924,20 @@ components:
           schema:
             $ref: '#/components/schemas/Error'
   schemas:
+    CollectionMeta:
+      type: object
+      required: [items, snapshotVersion]
+      properties:
+        items:
+          type: array
+          items: {}
+        nextCursor:
+          type: string
+          description: Pass as `after` to read the next page; empty when the page is the last.
+        snapshotVersion:
+          type: integer
+          minimum: 0
+          description: Change-stream position the collection was read at.
     NamespaceCreate:
       type: object
       required: [namespace, authorityRootRef]

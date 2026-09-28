@@ -39,17 +39,24 @@ class APIError(Exception):
 
 @dataclass
 class Mutation:
-    """Attribution recorded for a state change."""
+    """Attribution recorded for a state change.
+
+    ``expected_epoch`` is an optional optimistic-concurrency precondition: when
+    non-zero the object's current epoch must match or the mutation conflicts.
+    """
 
     reason: Optional[str] = None
     evidence_ref: Optional[str] = None
+    expected_epoch: int = 0
 
-    def payload(self) -> dict[str, str]:
-        out: dict[str, str] = {}
+    def payload(self) -> dict[str, Any]:
+        out: dict[str, Any] = {}
         if self.reason:
             out["reason"] = self.reason
         if self.evidence_ref:
             out["evidenceRef"] = self.evidence_ref
+        if self.expected_epoch:
+            out["expectedEpoch"] = self.expected_epoch
         return out
 
 
