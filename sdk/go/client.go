@@ -400,6 +400,10 @@ func (c *Client) TransitionWorkloadRegistration(ctx context.Context, workloadReg
 }
 
 // InstanceCommit is the verified enrollment submitted for an Agent instance.
+//
+// IdempotencyKey is optional. Set it to a stable value for a logical enrollment
+// so a retry replays the original instance instead of creating a second one; a
+// retry with the same key and a changed payload is rejected with a conflict.
 type InstanceCommit struct {
 	Namespace              string    `json:"namespace"`
 	WorkloadRegistrationID string    `json:"workloadRegistrationId"`
@@ -407,6 +411,7 @@ type InstanceCommit struct {
 	ArtifactDigest         string    `json:"artifactDigest"`
 	AttestationRef         string    `json:"attestationRef"`
 	LeaseExpiresAt         time.Time `json:"-"`
+	IdempotencyKey         string    `json:"-"`
 }
 
 // CommitInstance records a verified enrollment and activates an Agent instance.
@@ -429,7 +434,7 @@ func (c *Client) CommitInstance(ctx context.Context, agentID string, commit Inst
 		LeaseExpiresAt:         commit.LeaseExpiresAt.UTC().Format(time.RFC3339),
 	}
 	var out AgentInstance
-	if err := c.do(ctx, http.MethodPost, "/v1/agent-identities/"+agentID+"/instances", body, &out); err != nil {
+	if err := c.doKeyed(ctx, http.MethodPost, "/v1/agent-identities/"+agentID+"/instances", body, &out, commit.IdempotencyKey); err != nil {
 		return nil, err
 	}
 	return &out, nil
@@ -476,6 +481,11 @@ func (c *Client) ListEvents(ctx context.Context) ([]OutboxEvent, error) {
 }
 
 func (c *Client) do(ctx context.Context, method, path string, body any, out any) error {
+	return c.doKeyed(ctx, method, path, body, out, "")
+}
+
+// doKeyed is do with an explicit Idempotency-Key. An empty key generates one.
+func (c *Client) doKeyed(ctx context.Context, method, path string, body any, out any, idempotencyKey string) error {
 	var reader io.Reader
 	if body != nil {
 		encoded, err := json.Marshal(body)
@@ -493,7 +503,11 @@ func (c *Client) do(ctx context.Context, method, path string, body any, out any)
 		request.Header.Set("Content-Type", "application/json")
 	}
 	if method != http.MethodGet {
-		request.Header.Set("Idempotency-Key", newIdempotencyKey())
+		key := idempotencyKey
+		if key == "" {
+			key = newIdempotencyKey()
+		}
+		request.Header.Set("Idempotency-Key", key)
 		request.Header.Set("X-Actor", c.actor)
 	}
 	if c.tokenProvider != nil {

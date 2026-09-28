@@ -394,6 +394,12 @@ paths:
     post:
       operationId: commitAgentInstance
       summary: Record a verified enrollment and activate an Agent Instance.
+      description: >
+        Idempotent per (principal, Idempotency-Key). A retry with the same key and
+        the same payload returns the original instance with `200`; the same key with
+        a different payload returns `409`. The commit locks the namespace, Agent,
+        identity, and workload registration in one transaction and confirms each is
+        still usable before creating the instance.
       parameters:
         - $ref: '#/components/parameters/AgentID'
         - $ref: '#/components/parameters/IdempotencyKey'
@@ -411,10 +417,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AgentInstance'
+        '200':
+          description: Idempotent replay returned the original Agent Instance.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentInstance'
         '400':
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
     get:
       operationId: listAgentInstances
       summary: List Agent Instances for an Agent identity.

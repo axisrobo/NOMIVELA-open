@@ -161,10 +161,24 @@ class Client:
 
     # -- Instances -------------------------------------------------------
 
-    def commit_instance(self, agent_id: str, commit: InstanceCommit, mutation: Optional[Mutation] = None) -> AgentInstance:
+    def commit_instance(
+        self,
+        agent_id: str,
+        commit: InstanceCommit,
+        mutation: Optional[Mutation] = None,
+        idempotency_key: Optional[str] = None,
+    ) -> AgentInstance:
         body = commit.payload()
         body.update((mutation or Mutation()).payload())
-        return _build(AgentInstance, self._request("POST", f"/v1/agent-identities/{agent_id}/instances", body))
+        return _build(
+            AgentInstance,
+            self._request(
+                "POST",
+                f"/v1/agent-identities/{agent_id}/instances",
+                body,
+                idempotency_key=idempotency_key,
+            ),
+        )
 
     def list_instances(self, namespace: str, agent_id: str) -> list[AgentInstance]:
         query = urllib.parse.urlencode({"namespace": namespace})
@@ -189,14 +203,20 @@ class Client:
         payload = self._request("GET", path)
         return list(payload.get("items") or [])
 
-    def _request(self, method: str, path: str, body: Optional[dict[str, Any]] = None) -> dict[str, Any]:
+    def _request(
+        self,
+        method: str,
+        path: str,
+        body: Optional[dict[str, Any]] = None,
+        idempotency_key: Optional[str] = None,
+    ) -> dict[str, Any]:
         data = None
         headers: dict[str, str] = {}
         if body is not None:
             data = json.dumps(body).encode("utf-8")
             headers["Content-Type"] = "application/json"
         if method != "GET":
-            headers["Idempotency-Key"] = secrets.token_hex(16)
+            headers["Idempotency-Key"] = idempotency_key or secrets.token_hex(16)
             headers["X-Actor"] = self.actor
         token = self._token_provider() if self._token_provider is not None else self._token
         if token:

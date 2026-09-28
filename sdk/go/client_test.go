@@ -88,6 +88,26 @@ func TestClientSendsBearerToken(t *testing.T) {
 	}
 }
 
+func TestCommitInstanceSendsCallerIdempotencyKey(t *testing.T) {
+	var gotKey string
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		gotKey = r.Header.Get("Idempotency-Key")
+		_, _ = w.Write([]byte(`{"instanceId":"i1"}`))
+	}))
+	defer server.Close()
+
+	_, err := New(server.URL).CommitInstance(context.Background(), "a1", InstanceCommit{
+		Namespace: "https://auth.example.com", IdempotencyKey: "enr-1",
+		LeaseExpiresAt: time.Now().Add(time.Hour),
+	}, Mutation{})
+	if err != nil {
+		t.Fatalf("commit: %v", err)
+	}
+	if gotKey != "enr-1" {
+		t.Fatalf("idempotency key = %q, want enr-1", gotKey)
+	}
+}
+
 func TestGetRegistryContextEncodesSelectors(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/v1/registry-context" {

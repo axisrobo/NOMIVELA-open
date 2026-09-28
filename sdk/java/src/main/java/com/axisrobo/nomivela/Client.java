@@ -171,9 +171,17 @@ public final class Client {
     // -- Instances -------------------------------------------------------
 
     public AgentInstance commitInstance(String agentId, InstanceCommit commit, Mutation mutation) {
+        return commitInstance(agentId, commit, mutation, null);
+    }
+
+    /**
+     * Commits an instance with an explicit {@code Idempotency-Key}. Reuse the same
+     * key for a retry so the original instance is replayed instead of duplicated.
+     */
+    public AgentInstance commitInstance(String agentId, InstanceCommit commit, Mutation mutation, String idempotencyKey) {
         Map<String, Object> body = commit.payload();
         mutation.applyTo(body);
-        return toInstance(request("POST", "/v1/agent-identities/" + agentId + "/instances", body));
+        return toInstance(request("POST", "/v1/agent-identities/" + agentId + "/instances", body, idempotencyKey));
     }
 
     public List<AgentInstance> listInstances(String namespace, String agentId) {
@@ -214,6 +222,10 @@ public final class Client {
     }
 
     private Map<String, Object> request(String method, String path, Map<String, Object> body) {
+        return request(method, path, body, null);
+    }
+
+    private Map<String, Object> request(String method, String path, Map<String, Object> body, String idempotencyKey) {
         HttpRequest.Builder builder = HttpRequest.newBuilder(URI.create(baseUrl + path))
                 .timeout(Duration.ofSeconds(30));
         if (body == null) {
@@ -223,7 +235,8 @@ public final class Client {
             builder.method(method, HttpRequest.BodyPublishers.ofString(Json.write(body)));
         }
         if (!method.equals("GET")) {
-            builder.header("Idempotency-Key", newIdempotencyKey());
+            builder.header("Idempotency-Key",
+                    idempotencyKey == null || idempotencyKey.isEmpty() ? newIdempotencyKey() : idempotencyKey);
             builder.header("X-Actor", actor);
         }
         if (tokenProvider != null) {

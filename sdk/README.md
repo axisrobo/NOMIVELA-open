@@ -22,6 +22,28 @@ Client client = Client.withToken("https://registry.example.com", "eidovela", Sys
 Use a token provider when the token rotates: `nomivela.WithTokenProvider(fn)`,
 `Client(..., token_provider=fn)`, or `new Client(baseUrl, actor, supplier)`.
 
+## Instance Commit Idempotency
+
+Set a stable idempotency key for a logical enrollment so a retry replays the
+original instance instead of creating a second one; the same key with a changed
+payload is rejected with a conflict.
+
+```go
+instance, err := client.CommitInstance(ctx, agentID, nomivela.InstanceCommit{
+    Namespace: "https://auth.example.com", WorkloadRegistrationID: regID,
+    WorkloadID: "orders-1", ArtifactDigest: "sha256:abc", AttestationRef: "attestation:1",
+    LeaseExpiresAt: time.Now().Add(time.Hour), IdempotencyKey: "enrollment-42",
+}, nomivela.Mutation{})
+```
+
+```python
+client.commit_instance(agent_id, commit, idempotency_key="enrollment-42")
+```
+
+```java
+client.commitInstance(agentId, commit, mutation, "enrollment-42");
+```
+
 ## Go
 
 `sdk/go` is a standard-library-only client for the Agent Registry API. It sends
