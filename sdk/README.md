@@ -48,6 +48,11 @@ client.commitInstance(agentId, commit, mutation, "enrollment-42");
 
 `sdk/go` is a standard-library-only client for the Agent Registry API. It sends
 `Idempotency-Key` and `X-Actor` on every mutation, as the contract requires.
+From `2.0.0` the Go module path carries the major version:
+
+```go
+import nomivela "github.com/axisrobo/nomivela-open/v2/sdk/go"
+```
 
 ```go
 client := nomivela.New("http://localhost:8080", nomivela.WithActor("user:platform"))
