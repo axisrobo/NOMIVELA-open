@@ -51,12 +51,14 @@ Open carries the public surface: OpenAPI, JSON Schema, conformance fixtures, SDK
 - Recoverable event stream contract (cursor replay, lease/ack/nack) and Go SDK event methods. Delivered at `1.6.0`.
 - Conditional reads and concurrency contract (ETag/If-None-Match, paginated collections with snapshotVersion, expected-epoch/If-Match). Delivered at `1.7.0`.
 - Versioned workload proof profile contract (`proofRequirements`) and SDK fields. Delivered at `1.8.0`.
+- Consumer-surface parity: the Go, Python, and Java SDKs all cover the Registry Context read, signed discovery and the registry JWKS, and the event stream. Delivered at `2.0.0`.
+- Contract `1.0` graduation: the `agent-registry-v0.1` set is frozen as `agent-registry-v1.0` and the Open Go module moves to the `/v2` path. Delivered at `2.0.0`.
 
 **Exit gate**
 
-- Every supported SDK passes the shared conformance suite against a released Core binary. At `v1.1.0` the supported SDKs are Go, Python, and Java, each covered by its own test suite.
+- Every supported SDK passes the shared conformance suite against a released Core binary. At `v2.0.0` the supported SDKs are Go, Python, and Java, each covered by its own test suite.
 
-## O3: Federation And Edge Contracts (1.5.0, 2.0.0)
+## O3: Federation And Edge Contracts (future)
 
 **Deliverables**
 
