@@ -28,8 +28,8 @@ func TestContractVersionIsStable(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read openapi: %v", err)
 	}
-	if !strings.Contains(string(openapi), "version: 1.0.0") {
-		t.Fatal("agent-registry contract version must be 1.0.0; see COMPATIBILITY.md before changing it")
+	if !strings.Contains(string(openapi), "version: v1.0") {
+		t.Fatal("agent-registry contract version must be v1.0; see COMPATIBILITY.md before changing it")
 	}
 
 	assertSchemaID(t, "../contracts/schemas/agent-registry-v1.0.schema.json", "agent-registry-v1.0")

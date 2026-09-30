@@ -52,7 +52,7 @@ Open carries the public surface: OpenAPI, JSON Schema, conformance fixtures, SDK
 - Conditional reads and concurrency contract (ETag/If-None-Match, paginated collections with snapshotVersion, expected-epoch/If-Match). Delivered at `1.7.0`.
 - Versioned workload proof profile contract (`proofRequirements`) and SDK fields. Delivered at `1.8.0`.
 - Consumer-surface parity: the Go, Python, and Java SDKs all cover the Registry Context read, signed discovery and the registry JWKS, and the event stream. Delivered at `2.0.0`.
-- Contract `1.0` graduation: the `agent-registry-v0.1` set is frozen as `agent-registry-v1.0` and the Open Go module moves to the `/v2` path. Delivered at `2.0.0`.
+- Contract `v1.0` graduation: the `agent-registry-v0.1` set is frozen as `agent-registry-v1.0` and the Open Go module moves to the `/v2` path. Delivered at `2.0.0`.
 
 **Exit gate**
 

@@ -7,16 +7,16 @@ Do not confuse them.
 | Version | Example | Meaning |
 | --- | --- | --- |
 | Release version | `2.0.0` | The product release. Core and Open share it; EE is independent. |
-| Contract version | `1.0` | The Agent Registry public contract set (`agent-registry-v1.0`, `eidovela-v1-compat`). Changes only when a documented compatibility decision allows it. |
+| Contract version | `v1.0` | The Agent Registry public contract set (`agent-registry-v1.0`, `eidovela-v1-compat`). Changes only when a documented compatibility decision allows it. |
 
 A release may add optional fields to a contract without changing the contract
 version. The `v1.0` contract file names and `info.version` stay fixed until an
 approved contract-version bump, which is guarded by
 `conformance.TestContractVersionIsStable`.
 
-Contract `1.0` is the graduation of the `0.1` contract set: it freezes the
+Contract `v1.0` is the graduation of the `v0.1` contract set: it freezes the
 endpoint surface and field shapes that shipped across the `1.0.0`-`1.8.0`
-releases. It was reached additively, so a `0.1` client that ignores the newer
+releases. It was reached additively, so a `v0.1` client that ignores the newer
 fields keeps working; the file rename to `agent-registry-v1.0` is the intentional
 breaking change that marks the stable line.
 
@@ -31,7 +31,7 @@ breaking change that marks the stable line.
 
 | Release | Core / Open | Contracts | SDKs | Notes |
 | --- | --- | --- | --- | --- |
-| `v2.0.0` | `2.0.0` | `agent-registry-v1.0`, `eidovela-v1-compat` | Go, Python, Java | Contract `1.0` graduation: stable endpoint and field surface |
+| `v2.0.0` | `2.0.0` | `agent-registry-v1.0`, `eidovela-v1-compat` | Go, Python, Java | Contract `v1.0` graduation: stable endpoint and field surface |
 | `v1.8.0` | `1.8.0` | `agent-registry-v0.1`, `eidovela-v1-compat` | Go, Python, Java | Versioned workload proof profile (`proofRequirements`) |
 | `v1.7.0` | `1.7.0` | `agent-registry-v0.1`, `eidovela-v1-compat` | Go, Python, Java | Conditional reads (ETag/If-None-Match); paginated collections; expected-epoch/If-Match optimistic concurrency |
 | `v1.6.0` | `1.6.0` | `agent-registry-v0.1`, `eidovela-v1-compat` | Go, Python, Java | Recoverable event stream: cursor replay, lease/ack/nack; SDK event methods |
