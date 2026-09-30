@@ -137,7 +137,7 @@ func runAgent(ctx context.Context, args []string) error {
 		sponsor := fs.String("sponsor", "", "sponsor reference")
 		owner := fs.String("owner", "", "owner reference")
 		risk := fs.String("risk", "medium", "risk class")
-		class := fs.String("class", "", "agent class: embedded, organizational, user, asset_twin, personal_twin, service")
+		class := fs.String("class", "", "agent class: embedded, organizational, user, assetTwin, personalTwin, service")
 		carriers := fs.String("carrier-refs", "", "comma-separated carrier references")
 		c.globalFlags(fs)
 		if err := fs.Parse(args[1:]); err != nil {

@@ -19,7 +19,7 @@ agent = client.create_agent(
         sponsor_ref="org:platform",
         owner_ref="user:owner",
         risk_class="high",
-        agent_class="asset_twin",
+        agent_class="assetTwin",
         carrier_refs=["device:gateway-7"],
     ),
     mutation,

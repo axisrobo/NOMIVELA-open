@@ -23,7 +23,7 @@ Open carries the public surface: OpenAPI, JSON Schema, conformance fixtures, SDK
 
 **Deliverables**
 
-- Complete versioned contracts for namespace, Agent, identity, immutable binding, workload, instance, discovery, evidence, and events. Published in `contracts/agent-registry-v1.0.openapi.yaml`. Done.
+- Complete versioned contracts for namespace, Agent, identity, immutable binding, workload, instance, discovery, evidence, and events. Published in `contracts/agent-registry-v2.0.openapi.yaml`. Done.
 - Schema-driven conformance fixtures and a `go test ./conformance/...` suite covering valid and invalid cases for Namespace, AgentRecord, AgentIdentity, and DiscoveryDocument. Done.
 - Go SDK for the registration, lifecycle, containment, and evidence API in `sdk/go`. Done.
 - Public CLI (`cli/nomivela`) for namespace, Agent, identity, workload, instance, evidence, and event workflows. Done.
@@ -52,7 +52,7 @@ Open carries the public surface: OpenAPI, JSON Schema, conformance fixtures, SDK
 - Conditional reads and concurrency contract (ETag/If-None-Match, paginated collections with snapshotVersion, expected-epoch/If-Match). Delivered at `1.7.0`.
 - Versioned workload proof profile contract (`proofRequirements`) and SDK fields. Delivered at `1.8.0`.
 - Consumer-surface parity: the Go, Python, and Java SDKs all cover the Registry Context read, signed discovery and the registry JWKS, and the event stream. Delivered at `2.0.0`.
-- Contract `v1.0` graduation: the `agent-registry-v0.1` set is frozen as `agent-registry-v1.0` and the Open Go module moves to the `/v2` path. Delivered at `2.0.0`.
+- Contract `v1.0` graduation: the `agent-registry-v0.1` set is frozen as `agent-registry-v2.0` and the Open Go module moves to the `/v2` path. Delivered at `2.0.0`.
 
 **Exit gate**
 

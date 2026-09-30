@@ -36,7 +36,7 @@ NOMIVELA Open is the public distribution repository for NOMIVELA. It contains:
 
 It does not contain Core source code, Enterprise Edition code, internal design documents, or credentials.
 
-The operational API is described in `contracts/core-api.openapi.yaml`; the Agent Registry contract is `contracts/agent-registry-v1.0.openapi.yaml`.
+The operational API is described in `contracts/core-api.openapi.yaml`; the Agent Registry contract is `contracts/agent-registry-v2.0.openapi.yaml`.
 
 ## Repository family
 

@@ -192,15 +192,15 @@ class ClientTest {
     @Test
     void createAgentSendsFormAndCarriersWithoutState() {
         handler = request -> new Stub(201,
-                "{\"agentRef\":\"agent_edge_twin\",\"agentClass\":\"asset_twin\",\"carrierRefs\":[\"device:gateway-7\"],\"state\":\"draft\",\"agentEpoch\":1}");
+                "{\"agentRef\":\"agent_edge_twin\",\"agentClass\":\"assetTwin\",\"carrierRefs\":[\"device:gateway-7\"],\"state\":\"draft\",\"agentEpoch\":1}");
 
         Agent agent = new Client(baseUrl).createAgent(new Agent("agent_edge_twin", "Edge Twin", "Mirror the gateway",
-                "org:platform", "user:owner", "high", "asset_twin", List.of("device:gateway-7"), null, null),
+                "org:platform", "user:owner", "high", "assetTwin", List.of("device:gateway-7"), null, null),
                 Mutation.none());
 
-        assertEquals("asset_twin", agent.agentClass());
+        assertEquals("assetTwin", agent.agentClass());
         Map<String, Object> body = Json.parseObject(recorded.get(0).body());
-        assertEquals("asset_twin", body.get("agentClass"));
+        assertEquals("assetTwin", body.get("agentClass"));
         assertEquals(List.of("device:gateway-7"), body.get("carrierRefs"));
         assertFalse(body.containsKey("state"));
     }

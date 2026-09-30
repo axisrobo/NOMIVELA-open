@@ -5,7 +5,7 @@
   "sponsorRef": "org:platform",
   "ownerRef": "user:owner-123",
   "riskClass": "high",
-  "agentClass": "asset_twin",
+  "agentClass": "assetTwin",
   "carrierRefs": ["device:gateway-7", "service:edge-api"],
   "state": "registered",
   "agentEpoch": 1

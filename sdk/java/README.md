@@ -12,7 +12,7 @@ Namespace namespace = client.createNamespace("https://auth.example.com", "root:o
 Agent agent = client.createAgent(new Agent(
         "agent_edge_twin", "Edge Twin", "Mirror the edge gateway",
         "org:platform", "user:owner", "high",
-        "asset_twin", List.of("device:gateway-7"), null, null),
+        "assetTwin", List.of("device:gateway-7"), null, null),
         Mutation.none());
 ```
 

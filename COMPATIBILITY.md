@@ -7,12 +7,19 @@ Do not confuse them.
 | Version | Example | Meaning |
 | --- | --- | --- |
 | Release version | `2.0.0` | The product release. Core and Open share it; EE is independent. |
-| Contract version | `v1.0` | The Agent Registry public contract set (`agent-registry-v1.0`, `eidovela-v1-compat`). Changes only when a documented compatibility decision allows it. |
+| Contract version | `v2.0` | The Agent Registry public contract set (`agent-registry-v2.0`, `eidovela-v1-compat`). Changes only when a documented compatibility decision allows it. |
 
 A release may add optional fields to a contract without changing the contract
-version. The `v1.0` contract file names and `info.version` stay fixed until an
+version. The `v2.0` contract file names and `info.version` stay fixed until an
 approved contract-version bump, which is guarded by
 `conformance.TestContractVersionIsStable`.
+
+`agent-registry-v2.0` is the current line. It applies the Agent IAM Series
+contract conventions (RFC-0003): the Agent class values are `lowerCamelCase` and
+the set is the unified nine-class vocabulary (`embedded`, `organizational`,
+`user`, `assetTwin`, `personalTwin`, `twin`, `service`, `ephemeral`,
+`simulation`). The previous `agent-registry-v1.0` line is frozen; it used
+`asset_twin` and `personal_twin`.
 
 Contract `v1.0` is the graduation of the `v0.1` contract set: it freezes the
 endpoint surface and field shapes that shipped across the `1.0.0`-`1.8.0`

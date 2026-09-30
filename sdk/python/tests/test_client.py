@@ -243,7 +243,7 @@ class ClientTest(unittest.TestCase):
 
     def test_create_agent_sends_form_and_carriers(self):
         def respond(method, path, body):
-            return 201, {"agentRef": "agent_edge_twin", "agentClass": "asset_twin", "carrierRefs": ["device:gateway-7"], "state": "draft", "agentEpoch": 1}
+            return 201, {"agentRef": "agent_edge_twin", "agentClass": "assetTwin", "carrierRefs": ["device:gateway-7"], "state": "draft", "agentEpoch": 1}
 
         self.stub = StubServer(respond)
         agent = Client(self.stub.url).create_agent(
@@ -254,14 +254,14 @@ class ClientTest(unittest.TestCase):
                 sponsor_ref="org:platform",
                 owner_ref="user:owner",
                 risk_class="high",
-                agent_class="asset_twin",
+                agent_class="assetTwin",
                 carrier_refs=["device:gateway-7"],
             )
         )
 
-        self.assertEqual(agent.agent_class, "asset_twin")
+        self.assertEqual(agent.agent_class, "assetTwin")
         body = self.stub.requests[0]["body"]
-        self.assertEqual(body["agentClass"], "asset_twin")
+        self.assertEqual(body["agentClass"], "assetTwin")
         self.assertEqual(body["carrierRefs"], ["device:gateway-7"])
         self.assertNotIn("state", body)
 

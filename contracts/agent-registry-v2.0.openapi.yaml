@@ -1,7 +1,7 @@
 openapi: 3.1.1
 info:
   title: NOMIVELA Agent Registry API
-  version: v1.0
+  version: v2.0
   description: >
     Registration and discovery contract for the Agent Registry and Namespace Authority.
     Token issuance, workload authentication, and authorization are outside this API
@@ -1116,7 +1116,7 @@ components:
             type: string
             minLength: 1
     AgentClass:
-      enum: [embedded, organizational, user, asset_twin, personal_twin, service]
+      enum: [embedded, organizational, user, assetTwin, personalTwin, twin, service, ephemeral, simulation]
     Agent:
       type: object
       required: [agentRef, name, purpose, sponsorRef, ownerRef, riskClass, state, agentEpoch]
