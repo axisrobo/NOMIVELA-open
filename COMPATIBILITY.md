@@ -21,6 +21,18 @@ the set is the unified nine-class vocabulary (`embedded`, `organizational`,
 `simulation`). The previous `agent-registry-v1.0` line is frozen; it used
 `asset_twin` and `personal_twin`.
 
+### Additive change: Agent Identity type + 1:N (2026-10-10)
+
+The current `agent-registry-v2.0` line gains two optional Agent Identity fields —
+`identityType` (`interactive`/`autonomous`/`digitalEmployee`) and `subjectRef` —
+plus optional list filters, and relaxes uniqueness to one live identity per
+`(agent, identityType, subjectRef)`. This is additive under the change policy
+below: omitting the fields keeps the legacy 1:1 behavior, and a client that
+ignores the new fields keeps working. The contract version and file names are
+unchanged. New fixtures (`valid-agent-identity-typed`,
+`invalid-agent-identity-type`, `invalid-agent-identity-subject-missing`,
+`invalid-agent-identity-subject-forbidden`) exercise the pairing rule.
+
 Contract `v1.0` is the graduation of the `v0.1` contract set: it freezes the
 endpoint surface and field shapes that shipped across the `1.0.0`-`1.8.0`
 releases. It was reached additively, so a `v0.1` client that ignores the newer
