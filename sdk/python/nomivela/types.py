@@ -48,6 +48,8 @@ class AgentIdentity:
     namespace: Optional[str] = _json("namespace")
     agent_id: Optional[str] = _json("agentId")
     agent_ref: Optional[str] = _json("agentRef")
+    identity_type: Optional[str] = _json("identityType")
+    subject_ref: Optional[str] = _json("subjectRef")
     state: Optional[str] = _json("state")
     identity_epoch: Optional[int] = _json("identityEpoch")
     authority_root_ref: Optional[str] = _json("authorityRootRef")

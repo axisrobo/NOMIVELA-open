@@ -114,6 +114,8 @@ type AgentIdentity struct {
 	Namespace         string `json:"namespace"`
 	AgentID           string `json:"agentId"`
 	AgentRef          string `json:"agentRef"`
+	IdentityType      string `json:"identityType,omitempty"`
+	SubjectRef        string `json:"subjectRef,omitempty"`
 	State             string `json:"state"`
 	IdentityEpoch     int64  `json:"identityEpoch"`
 	AuthorityRootRef  string `json:"authorityRootRef,omitempty"`
@@ -379,13 +381,22 @@ func (c *Client) ContainAgent(ctx context.Context, agentRef, mode string, mut Mu
 	return &out, nil
 }
 
-// AllocateIdentity allocates an Agent ID in a namespace.
+// AllocateIdentity allocates a legacy untyped Agent ID in a namespace.
 func (c *Client) AllocateIdentity(ctx context.Context, namespace, agentRef string, mut Mutation) (*AgentIdentity, error) {
+	return c.AllocateIdentityWithType(ctx, namespace, agentRef, "", "", mut)
+}
+
+// AllocateIdentityWithType allocates an Agent ID carrying an identity type and
+// optional subject reference. Passing empty strings keeps the legacy untyped
+// 1:1 allocation.
+func (c *Client) AllocateIdentityWithType(ctx context.Context, namespace, agentRef, identityType, subjectRef string, mut Mutation) (*AgentIdentity, error) {
 	body := struct {
 		Mutation
-		Namespace string `json:"namespace"`
-		AgentRef  string `json:"agentRef"`
-	}{mut, namespace, agentRef}
+		Namespace    string `json:"namespace"`
+		AgentRef     string `json:"agentRef"`
+		IdentityType string `json:"identityType,omitempty"`
+		SubjectRef   string `json:"subjectRef,omitempty"`
+	}{mut, namespace, agentRef, identityType, subjectRef}
 	var out AgentIdentity
 	if err := c.do(ctx, http.MethodPost, "/v1/agent-identities", body, &out); err != nil {
 		return nil, err
@@ -395,8 +406,22 @@ func (c *Client) AllocateIdentity(ctx context.Context, namespace, agentRef strin
 
 // ListIdentities returns the Agent identities of a namespace.
 func (c *Client) ListIdentities(ctx context.Context, namespace string) ([]AgentIdentity, error) {
+	return c.ListIdentitiesWithFilters(ctx, namespace, "", "")
+}
+
+// ListIdentitiesWithFilters returns the Agent identities of a namespace,
+// optionally filtered by identity type and subject reference. Empty filters are
+// ignored.
+func (c *Client) ListIdentitiesWithFilters(ctx context.Context, namespace, identityType, subjectRef string) ([]AgentIdentity, error) {
+	query := url.Values{"namespace": {namespace}}
+	if identityType != "" {
+		query.Set("identityType", identityType)
+	}
+	if subjectRef != "" {
+		query.Set("subjectRef", subjectRef)
+	}
 	var out listResponse[AgentIdentity]
-	if err := c.do(ctx, http.MethodGet, "/v1/agent-identities?namespace="+urlQueryEscape(namespace), nil, &out); err != nil {
+	if err := c.do(ctx, http.MethodGet, "/v1/agent-identities?"+query.Encode(), nil, &out); err != nil {
 		return nil, err
 	}
 	return out.Items, nil

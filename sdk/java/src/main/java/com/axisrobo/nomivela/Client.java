@@ -115,15 +115,36 @@ public final class Client {
     // -- Identities ------------------------------------------------------
 
     public AgentIdentity allocateIdentity(String namespace, String agentRef, Mutation mutation) {
+        return allocateIdentity(namespace, agentRef, null, null, mutation);
+    }
+
+    public AgentIdentity allocateIdentity(String namespace, String agentRef, String identityType, String subjectRef, Mutation mutation) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("namespace", namespace);
         body.put("agentRef", agentRef);
+        if (identityType != null && !identityType.isEmpty()) {
+            body.put("identityType", identityType);
+        }
+        if (subjectRef != null && !subjectRef.isEmpty()) {
+            body.put("subjectRef", subjectRef);
+        }
         mutation.applyTo(body);
         return toIdentity(request("POST", "/v1/agent-identities", body));
     }
 
     public List<AgentIdentity> listIdentities(String namespace) {
-        return items("/v1/agent-identities?namespace=" + encode(namespace)).stream().map(Client::toIdentity).toList();
+        return listIdentities(namespace, null, null);
+    }
+
+    public List<AgentIdentity> listIdentities(String namespace, String identityType, String subjectRef) {
+        StringBuilder path = new StringBuilder("/v1/agent-identities?namespace=").append(encode(namespace));
+        if (identityType != null && !identityType.isEmpty()) {
+            path.append("&identityType=").append(encode(identityType));
+        }
+        if (subjectRef != null && !subjectRef.isEmpty()) {
+            path.append("&subjectRef=").append(encode(subjectRef));
+        }
+        return items(path.toString()).stream().map(Client::toIdentity).toList();
     }
 
     public AgentIdentity bindIdentity(String namespace, String agentId, String rootRef, String rootType, Mutation mutation) {
@@ -416,8 +437,8 @@ public final class Client {
 
     private static AgentIdentity toIdentity(Map<String, Object> map) {
         return new AgentIdentity(text(map, "namespace"), text(map, "agentId"), text(map, "agentRef"),
-                text(map, "state"), number(map, "identityEpoch"), text(map, "authorityRootRef"),
-                text(map, "authorityRootType"));
+                text(map, "identityType"), text(map, "subjectRef"), text(map, "state"),
+                number(map, "identityEpoch"), text(map, "authorityRootRef"), text(map, "authorityRootType"));
     }
 
     private static WorkloadRegistration toWorkload(Map<String, Object> map) {

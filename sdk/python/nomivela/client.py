@@ -129,13 +129,34 @@ class Client:
 
     # -- Identities ------------------------------------------------------
 
-    def allocate_identity(self, namespace: str, agent_ref: str, mutation: Optional[Mutation] = None) -> AgentIdentity:
+    def allocate_identity(
+        self,
+        namespace: str,
+        agent_ref: str,
+        mutation: Optional[Mutation] = None,
+        identity_type: Optional[str] = None,
+        subject_ref: Optional[str] = None,
+    ) -> AgentIdentity:
         body = {"namespace": namespace, "agentRef": agent_ref}
+        if identity_type:
+            body["identityType"] = identity_type
+        if subject_ref:
+            body["subjectRef"] = subject_ref
         body.update((mutation or Mutation()).payload())
         return _build(AgentIdentity, self._request("POST", "/v1/agent-identities", body))
 
-    def list_identities(self, namespace: str) -> list[AgentIdentity]:
-        query = urllib.parse.urlencode({"namespace": namespace})
+    def list_identities(
+        self,
+        namespace: str,
+        identity_type: Optional[str] = None,
+        subject_ref: Optional[str] = None,
+    ) -> list[AgentIdentity]:
+        params = {"namespace": namespace}
+        if identity_type:
+            params["identityType"] = identity_type
+        if subject_ref:
+            params["subjectRef"] = subject_ref
+        query = urllib.parse.urlencode(params)
         return [_build(AgentIdentity, item) for item in self._items(f"/v1/agent-identities?{query}")]
 
     def bind_identity(self, namespace: str, agent_id: str, root_ref: str, root_type: str, mutation: Optional[Mutation] = None) -> AgentIdentity:

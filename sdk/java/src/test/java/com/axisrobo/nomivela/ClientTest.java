@@ -148,6 +148,32 @@ class ClientTest {
     }
 
     @Test
+    void allocateAndListIdentityType() {
+        handler = request -> {
+            if ("POST".equals(request.method())) {
+                return new Stub(201,
+                        "{\"agentId\":\"abc\",\"identityType\":\"interactive\",\"subjectRef\":\"user:u1\",\"state\":\"allocated\",\"identityEpoch\":1}");
+            }
+            return new Stub(200, "{\"items\":[{\"agentId\":\"abc\",\"identityType\":\"interactive\",\"subjectRef\":\"user:u1\"}]}");
+        };
+
+        Client client = new Client(baseUrl);
+        AgentIdentity identity = client.allocateIdentity(
+                "https://auth.example.com", "agent_x", "interactive", "user:u1", new Mutation("test", null));
+        assertEquals("interactive", identity.identityType());
+        assertEquals("user:u1", identity.subjectRef());
+        Map<String, Object> body = Json.parseObject(recorded.get(0).body());
+        assertEquals("interactive", body.get("identityType"));
+        assertEquals("user:u1", body.get("subjectRef"));
+
+        List<AgentIdentity> identities = client.listIdentities("https://auth.example.com", "interactive", "user:u1");
+        assertEquals("interactive", identities.get(0).identityType());
+        String decoded = URLDecoder.decode(recorded.get(1).query(), StandardCharsets.UTF_8);
+        assertTrue(decoded.contains("identityType=interactive"));
+        assertTrue(decoded.contains("subjectRef=user:u1"));
+    }
+
+    @Test
     void apiErrorCarriesCode() {
         handler = request -> new Stub(409,
                 "{\"error\":{\"code\":\"conflict\",\"message\":\"an active agent id already exists\",\"correlationId\":\"corr-9\"}}");

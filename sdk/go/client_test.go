@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"testing"
 	"time"
 )
@@ -65,6 +66,44 @@ func TestListIdentitiesEscapesQuery(t *testing.T) {
 	}
 	if len(identities) != 1 || identities[0].AgentID != "abc" {
 		t.Fatalf("unexpected identities: %+v", identities)
+	}
+}
+
+func TestAllocateIdentityWithTypeSendsFields(t *testing.T) {
+	var body map[string]any
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_ = json.NewDecoder(r.Body).Decode(&body)
+		_ = json.NewEncoder(w).Encode(AgentIdentity{AgentID: "abc", IdentityType: "interactive", SubjectRef: "user:u1", State: "allocated"})
+	}))
+	defer server.Close()
+
+	out, err := New(server.URL).AllocateIdentityWithType(context.Background(),
+		"https://auth.example.com", "agent_x", "interactive", "user:u1", Mutation{Reason: "test"})
+	if err != nil {
+		t.Fatalf("allocate: %v", err)
+	}
+	if body["identityType"] != "interactive" || body["subjectRef"] != "user:u1" {
+		t.Fatalf("request body = %+v", body)
+	}
+	if out.IdentityType != "interactive" || out.SubjectRef != "user:u1" {
+		t.Fatalf("response = %+v", out)
+	}
+}
+
+func TestListIdentitiesWithFilters(t *testing.T) {
+	var query url.Values
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		query = r.URL.Query()
+		_ = json.NewEncoder(w).Encode(map[string]any{"items": []AgentIdentity{}})
+	}))
+	defer server.Close()
+
+	if _, err := New(server.URL).ListIdentitiesWithFilters(context.Background(),
+		"https://auth.example.com", "interactive", "user:u1"); err != nil {
+		t.Fatalf("list: %v", err)
+	}
+	if query.Get("identityType") != "interactive" || query.Get("subjectRef") != "user:u1" {
+		t.Fatalf("query = %v", query)
 	}
 }
 

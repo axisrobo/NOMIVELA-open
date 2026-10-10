@@ -109,6 +109,38 @@ class ClientTest(unittest.TestCase):
             self.stub.requests[0]["query"]["namespace"], ["https://auth.example.com"]
         )
 
+    def test_allocate_and_list_identity_type(self):
+        def respond(method, path, body):
+            if method == "POST":
+                return 201, {
+                    "agentId": "abc",
+                    "identityType": "interactive",
+                    "subjectRef": "user:u1",
+                    "state": "allocated",
+                    "identityEpoch": 1,
+                }
+            return 200, {"items": [{"agentId": "abc", "identityType": "interactive", "subjectRef": "user:u1"}]}
+
+        self.stub = StubServer(respond)
+        client = Client(self.stub.url)
+
+        identity = client.allocate_identity(
+            "https://auth.example.com", "agent_x", identity_type="interactive", subject_ref="user:u1"
+        )
+        self.assertEqual(identity.identity_type, "interactive")
+        self.assertEqual(identity.subject_ref, "user:u1")
+        post = self.stub.requests[0]
+        self.assertEqual(post["body"]["identityType"], "interactive")
+        self.assertEqual(post["body"]["subjectRef"], "user:u1")
+
+        identities = client.list_identities(
+            "https://auth.example.com", identity_type="interactive", subject_ref="user:u1"
+        )
+        self.assertEqual(identities[0].identity_type, "interactive")
+        get = self.stub.requests[1]
+        self.assertEqual(get["query"]["identityType"], ["interactive"])
+        self.assertEqual(get["query"]["subjectRef"], ["user:u1"])
+
     def test_api_error_carries_code(self):
         def respond(method, path, body):
             return 409, {
