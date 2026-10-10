@@ -50,6 +50,7 @@ breaking change that marks the stable line.
 
 | Release | Core / Open | Contracts | SDKs | Notes |
 | --- | --- | --- | --- | --- |
+| `v2.1.0` | `2.1.0` | `agent-registry-v2.0`, `eidovela-v1-compat` | Go, Python, Java | Agent Identity type (`identityType`/`subjectRef`) + scoped 1:N uniqueness; additive, no contract-version change |
 | `v2.0.0` | `2.0.0` | `agent-registry-v1.0`, `eidovela-v1-compat` | Go, Python, Java | Contract `v1.0` graduation: stable endpoint and field surface |
 | `v1.8.0` | `1.8.0` | `agent-registry-v0.1`, `eidovela-v1-compat` | Go, Python, Java | Versioned workload proof profile (`proofRequirements`) |
 | `v1.7.0` | `1.7.0` | `agent-registry-v0.1`, `eidovela-v1-compat` | Go, Python, Java | Conditional reads (ETag/If-None-Match); paginated collections; expected-epoch/If-Match optimistic concurrency |
