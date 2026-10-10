@@ -37,9 +37,28 @@
         "namespace": {"type": "string"},
         "agentId": {"type": "string", "format": "uuid"},
         "agentRef": {"type": "string"},
+        "identityType": {
+          "enum": ["interactive", "autonomous", "digitalEmployee"],
+          "description": "Interaction/identity model. Absent for legacy untyped identities."
+        },
+        "subjectRef": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Bound user for interactive/digitalEmployee identities; omitted for autonomous."
+        },
         "state": {"enum": ["allocated", "bound", "active", "suspended", "revoked"]},
         "identityEpoch": {"type": "integer", "minimum": 1}
-      }
+      },
+      "allOf": [
+        {
+          "if": {"properties": {"identityType": {"enum": ["interactive", "digitalEmployee"]}}, "required": ["identityType"]},
+          "then": {"required": ["subjectRef"]}
+        },
+        {
+          "if": {"properties": {"identityType": {"const": "autonomous"}}, "required": ["identityType"]},
+          "then": {"not": {"required": ["subjectRef"]}}
+        }
+      ]
     },
     "DiscoveryDocument": {
       "type": "object",

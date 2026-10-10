@@ -9,7 +9,11 @@
     {"file": "valid-namespace.json", "definition": "Namespace", "valid": true},
     {"file": "invalid-namespace-insecure.json", "definition": "Namespace", "valid": false},
     {"file": "valid-agent-identity.json", "definition": "AgentIdentity", "valid": true},
+    {"file": "valid-agent-identity-typed.json", "definition": "AgentIdentity", "valid": true},
     {"file": "invalid-agent-identity-epoch.json", "definition": "AgentIdentity", "valid": false},
+    {"file": "invalid-agent-identity-type.json", "definition": "AgentIdentity", "valid": false},
+    {"file": "invalid-agent-identity-subject-missing.json", "definition": "AgentIdentity", "valid": false},
+    {"file": "invalid-agent-identity-subject-forbidden.json", "definition": "AgentIdentity", "valid": false},
     {"file": "valid-discovery.json", "definition": "DiscoveryDocument", "valid": true},
     {"file": "invalid-discovery-missing-jwks.json", "definition": "DiscoveryDocument", "valid": false},
     {

@@ -178,7 +178,7 @@ paths:
   /v1/agent-identities:
     post:
       operationId: allocateAgentIdentity
-      summary: Allocate an Agent ID in a namespace. At most one live Agent ID per agent.
+      summary: Allocate an Agent ID in a namespace. At most one live Agent ID per (agent, identityType, subjectRef); an untyped allocation keeps the legacy 1:1 rule per agent.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
         - $ref: '#/components/parameters/CorrelationId'
@@ -194,6 +194,30 @@ paths:
                   type: string
                 agentRef:
                   type: string
+                identityType:
+                  type: string
+                  enum: [interactive, autonomous, digitalEmployee]
+                  description: Optional. Omitting it keeps the legacy untyped 1:1 identity.
+                subjectRef:
+                  type: string
+                  minLength: 1
+                  description: Required for interactive/digitalEmployee; must be omitted for autonomous.
+              allOf:
+                - if:
+                    properties:
+                      identityType:
+                        enum: [interactive, digitalEmployee]
+                    required: [identityType]
+                  then:
+                    required: [subjectRef]
+                - if:
+                    properties:
+                      identityType:
+                        const: autonomous
+                    required: [identityType]
+                  then:
+                    not:
+                      required: [subjectRef]
       responses:
         '201':
           description: Agent Identity allocated.
@@ -212,6 +236,17 @@ paths:
         - name: namespace
           in: query
           required: true
+          schema:
+            type: string
+        - name: identityType
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [interactive, autonomous, digitalEmployee]
+        - name: subjectRef
+          in: query
+          required: false
           schema:
             type: string
         - $ref: '#/components/parameters/After'
@@ -1171,6 +1206,14 @@ components:
           format: uuid
         agentRef:
           type: string
+        identityType:
+          type: string
+          enum: [interactive, autonomous, digitalEmployee]
+          description: Interaction/identity model. Absent for legacy untyped identities.
+        subjectRef:
+          type: string
+          minLength: 1
+          description: Bound user for interactive/digitalEmployee identities; omitted for autonomous.
         state:
           $ref: '#/components/schemas/IdentityState'
         identityEpoch:
@@ -1180,6 +1223,22 @@ components:
           type: string
         authorityRootType:
           type: string
+      allOf:
+        - if:
+            properties:
+              identityType:
+                enum: [interactive, digitalEmployee]
+            required: [identityType]
+          then:
+            required: [subjectRef]
+        - if:
+            properties:
+              identityType:
+                const: autonomous
+            required: [identityType]
+          then:
+            not:
+              required: [subjectRef]
     DiscoveryDocument:
       type: object
       required: [namespace, registryEndpoint, issuer, jwksUri, supportedProofProfiles]
