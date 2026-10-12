@@ -463,7 +463,7 @@ public final class Client {
     private static OutboxEvent toOutboxEvent(Map<String, Object> map) {
         Map<String, Object> payload = map.get("payload") instanceof Map<?, ?> nested ? castMap(nested) : null;
         return new OutboxEvent(text(map, "eventId"), text(map, "eventType"), text(map, "aggregateType"),
-                text(map, "aggregateId"), number(map, "sequence"), number(map, "cursor"),
+                text(map, "aggregateId"), text(map, "namespace"), number(map, "sequence"), number(map, "cursor"),
                 number(map, "payloadVersion"), payload, text(map, "occurredAt"), number(map, "attempts"));
     }
 

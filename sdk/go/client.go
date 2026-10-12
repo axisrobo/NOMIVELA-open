@@ -235,6 +235,7 @@ type OutboxEvent struct {
 	EventType      string         `json:"eventType"`
 	AggregateType  string         `json:"aggregateType"`
 	AggregateID    string         `json:"aggregateId"`
+	Namespace      string         `json:"namespace,omitempty"`
 	Sequence       int64          `json:"sequence"`
 	Cursor         int64          `json:"cursor"`
 	PayloadVersion int            `json:"payloadVersion"`

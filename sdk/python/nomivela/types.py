@@ -104,6 +104,7 @@ class OutboxEvent:
     event_type: Optional[str] = _json("eventType")
     aggregate_type: Optional[str] = _json("aggregateType")
     aggregate_id: Optional[str] = _json("aggregateId")
+    namespace: Optional[str] = _json("namespace")
     sequence: Optional[int] = _json("sequence")
     cursor: Optional[int] = _json("cursor")
     payload_version: Optional[int] = _json("payloadVersion")

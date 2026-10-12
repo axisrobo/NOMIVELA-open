@@ -11,6 +11,7 @@ public record OutboxEvent(
         String eventType,
         String aggregateType,
         String aggregateId,
+        String namespace,
         Long sequence,
         Long cursor,
         Long payloadVersion,

@@ -1054,6 +1054,11 @@ components:
           type: string
         aggregateId:
           type: string
+        namespace:
+          type: string
+          description: >
+            The authority namespace an event belongs to, for namespace-isolated
+            consumers. Omitted for global objects (an Agent record).
         sequence:
           type: integer
           minimum: 1
