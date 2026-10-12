@@ -1284,9 +1284,13 @@ components:
         signature:
           type: string
           description: >
-            Base64url Ed25519 signature over the canonical document: the
-            JSON object without `signature`, with sorted keys and RFC 3339 UTC
-            timestamps.
+            Base64url Ed25519 signature over the canonical document. Canonical
+            form: the JSON object without `signature`, with keys sorted, HTML
+            escaping disabled, and `issuedAt`/`expiresAt` as RFC 3339 UTC at
+            second precision. The published Go SDK provides
+            `CanonicalDiscovery`/`VerifyDiscovery`/`VerifyDiscoveryWithJWKS` so a
+            consumer verifies against a key it trusts independently, without
+            reimplementing this form.
     JWK:
       type: object
       required: [kty, crv, kid, alg, use, x]

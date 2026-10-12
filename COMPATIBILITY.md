@@ -40,6 +40,16 @@ newer fields kept working. Contract `v2.0` (`2.0.1`) then applied the nine-class
 camelCase Agent class vocabulary and is the current stable line; the `v1.0` line
 is frozen.
 
+### Additive: discovery verification in the SDK
+
+The Go SDK adds `CanonicalDiscovery`, `VerifyDiscovery`, and
+`VerifyDiscoveryWithJWKS` so a consumer verifies a signed discovery document
+against an independently trusted key without reimplementing the canonical form
+or coupling to Core internals. Additive and SDK-only; the contract's endpoint
+surface and field shapes are unchanged. The canonical form is documented on
+`DiscoveryDocument.signature` (sorted keys, HTML escaping disabled, RFC 3339 UTC
+timestamps at second precision).
+
 ## Repository Alignment
 
 - `NOMIVELA` (Core, AGPL-3.0) and `NOMIVELA-open` always share the same release
