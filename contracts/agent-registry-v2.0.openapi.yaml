@@ -19,7 +19,7 @@ info:
     return an `ETag` and honor `If-None-Match` with `304 Not Modified`;
     collections return `nextCursor` and `snapshotVersion`.
 servers:
-  - url: http://localhost:8080
+  - url: http://localhost:1956
 paths:
   /v1/namespaces:
     post:

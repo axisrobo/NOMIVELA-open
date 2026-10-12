@@ -4,7 +4,7 @@ A zero-runtime-dependency Java client (JDK 17+) for the Agent Registry API. It
 uses `java.net.http.HttpClient` and a small built-in JSON reader/writer.
 
 ```java
-Client client = new Client("http://localhost:8080", "user:platform");
+Client client = new Client("http://localhost:1956", "user:platform");
 
 Namespace namespace = client.createNamespace("https://auth.example.com", "root:org-a",
         new Mutation("bootstrap", null));

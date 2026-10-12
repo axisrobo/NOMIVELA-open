@@ -1,7 +1,7 @@
 // Command quickstart runs the full NOMIVELA registration and enrollment path
 // against a running NOMIVELA Core.
 //
-//	go run ./examples/go/quickstart -api http://localhost:8080
+//	go run ./examples/go/quickstart -api http://localhost:1956
 package main
 
 import (
@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	api := flag.String("api", "http://localhost:8080", "API base URL")
+	api := flag.String("api", "http://localhost:1956", "API base URL")
 	namespace := flag.String("namespace", "https://auth.example.com", "authority namespace")
 	flag.Parse()
 

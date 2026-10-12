@@ -7,7 +7,7 @@ Runnable examples for the published NOMIVELA contracts.
 Start NOMIVELA Core with a PostgreSQL database, then run:
 
 ```powershell
-go run ./examples/go/quickstart -api http://localhost:8080
+go run ./examples/go/quickstart -api http://localhost:1956
 ```
 
 Every example uses the SDK, so it also serves as a compile-checked usage reference.

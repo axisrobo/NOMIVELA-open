@@ -55,7 +55,7 @@ import nomivela "github.com/axisrobo/nomivela-open/v2/sdk/go"
 ```
 
 ```go
-client := nomivela.New("http://localhost:8080", nomivela.WithActor("user:platform"))
+client := nomivela.New("http://localhost:1956", nomivela.WithActor("user:platform"))
 
 namespace, err := client.CreateNamespace(ctx, "https://auth.example.com", "root:org-a", nomivela.Mutation{Reason: "bootstrap"})
 agent, err := client.CreateAgent(ctx, nomivela.Agent{
@@ -83,7 +83,7 @@ The client maps non-2xx responses to `*nomivela.APIError` carrying the stable
 ```python
 from nomivela import Agent, Client, Mutation
 
-client = Client("http://localhost:8080", actor="user:platform")
+client = Client("http://localhost:1956", actor="user:platform")
 namespace = client.create_namespace("https://auth.example.com", "root:org-a", Mutation(reason="bootstrap"))
 ```
 
@@ -101,7 +101,7 @@ Non-2xx responses raise `nomivela.APIError` with `status`, `code`, `message`, an
 `sdk/java` is a zero-runtime-dependency client (JDK 17+) built with Maven.
 
 ```java
-Client client = new Client("http://localhost:8080", "user:platform");
+Client client = new Client("http://localhost:1956", "user:platform");
 Namespace namespace = client.createNamespace("https://auth.example.com", "root:org-a",
         new Mutation("bootstrap", null));
 ```

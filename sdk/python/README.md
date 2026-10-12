@@ -7,7 +7,7 @@ stable contract code on failure.
 ```python
 from nomivela import Agent, Client, Mutation
 
-client = Client("http://localhost:8080", actor="user:platform")
+client = Client("http://localhost:1956", actor="user:platform")
 mutation = Mutation(reason="bootstrap")
 
 namespace = client.create_namespace("https://auth.example.com", "root:org-a", mutation)

@@ -63,7 +63,7 @@ func run(ctx context.Context, args []string) error {
 
 func newConfig() config {
 	return config{
-		api:   envOr("NOMIVELA_API_URL", "http://localhost:8080"),
+		api:   envOr("NOMIVELA_API_URL", "http://localhost:1956"),
 		actor: envOr("NOMIVELA_ACTOR", "nomivela-cli"),
 	}
 }
