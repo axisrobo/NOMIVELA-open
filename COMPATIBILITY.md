@@ -33,11 +33,12 @@ unchanged. New fixtures (`valid-agent-identity-typed`,
 `invalid-agent-identity-type`, `invalid-agent-identity-subject-missing`,
 `invalid-agent-identity-subject-forbidden`) exercise the pairing rule.
 
-Contract `v1.0` is the graduation of the `v0.1` contract set: it freezes the
-endpoint surface and field shapes that shipped across the `1.0.0`-`1.8.0`
-releases. It was reached additively, so a `v0.1` client that ignores the newer
-fields keeps working; the file rename to `agent-registry-v1.0` is the intentional
-breaking change that marks the stable line.
+Contract `v1.0` was the graduation of the `v0.1` contract set at release `2.0.0`:
+it froze the endpoint surface and field shapes that shipped across the
+`1.0.0`-`1.8.0` releases, reached additively, so a `v0.1` client that ignores the
+newer fields kept working. Contract `v2.0` (`2.0.1`) then applied the nine-class
+camelCase Agent class vocabulary and is the current stable line; the `v1.0` line
+is frozen.
 
 ## Repository Alignment
 
@@ -51,6 +52,7 @@ breaking change that marks the stable line.
 | Release | Core / Open | Contracts | SDKs | Notes |
 | --- | --- | --- | --- | --- |
 | `v2.1.0` | `2.1.0` | `agent-registry-v2.0`, `eidovela-v1-compat` | Go, Python, Java | Agent Identity type (`identityType`/`subjectRef`) + scoped 1:N uniqueness; additive, no contract-version change |
+| `v2.0.1` | `2.0.1` | `agent-registry-v2.0`, `eidovela-v1-compat` | Go, Python, Java | Contract `v2.0`: nine-class camelCase Agent class vocabulary |
 | `v2.0.0` | `2.0.0` | `agent-registry-v1.0`, `eidovela-v1-compat` | Go, Python, Java | Contract `v1.0` graduation: stable endpoint and field surface |
 | `v1.8.0` | `1.8.0` | `agent-registry-v0.1`, `eidovela-v1-compat` | Go, Python, Java | Versioned workload proof profile (`proofRequirements`) |
 | `v1.7.0` | `1.7.0` | `agent-registry-v0.1`, `eidovela-v1-compat` | Go, Python, Java | Conditional reads (ETag/If-None-Match); paginated collections; expected-epoch/If-Match optimistic concurrency |
