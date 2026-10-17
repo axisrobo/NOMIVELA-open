@@ -53,3 +53,9 @@ Unless a subdirectory states otherwise, the contents are licensed under Apache-2
 ## Releases
 
 Versions use `major.minor.patch`, for example `1.2.0`. Release tags are `v<major.minor.patch>`. Core and Open always share the same version number and tag name.
+
+## Core status (recorded here; no external links)
+
+The NOMIVELA core at 2.1.1 records the 2026-10-13 real-service E2E evidence: the
+PRAXOVELA enrollment chain registered against the live registry (NI-01
+evidenced); NI-02 / NI-03 / NI-04 remain open. The default HTTP port is 1956.
