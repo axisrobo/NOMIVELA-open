@@ -1,4 +1,4 @@
-module github.com/axisvela/nomivela-open/v2
+module github.com/axisvela/nomivela-open/v3
 
 go 1.25
 

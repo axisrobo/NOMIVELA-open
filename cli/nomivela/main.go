@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	nomivela "github.com/axisvela/nomivela-open/v2/sdk/go"
+	nomivela "github.com/axisvela/nomivela-open/v3/sdk/go"
 )
 
 var stdout io.Writer = os.Stdout
