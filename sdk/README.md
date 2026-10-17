@@ -51,7 +51,7 @@ client.commitInstance(agentId, commit, mutation, "enrollment-42");
 From `2.0.0` the Go module path carries the major version:
 
 ```go
-import nomivela "github.com/axisrobo/nomivela-open/v2/sdk/go"
+import nomivela "github.com/axisvela/nomivela-open/v2/sdk/go"
 ```
 
 ```go

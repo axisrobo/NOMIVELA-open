@@ -32,7 +32,7 @@ NOMIVELA Open is the public distribution repository for NOMIVELA. It contains:
 - Go, Python, and Java SDKs (`sdk/`)
 - A command-line client (`cli/nomivela`)
 - Runnable examples (`examples/`)
-- Redistributable NOMIVELA Core binaries on the [Releases](https://github.com/axisrobo/NOMIVELA-open/releases) page (`dist/`)
+- Redistributable NOMIVELA Core binaries on the [Releases](https://github.com/axisvela/NOMIVELA-open/releases) page (`dist/`)
 
 It does not contain Core source code, Enterprise Edition code, internal design documents, or credentials.
 
@@ -42,7 +42,7 @@ The operational API is described in `contracts/core-api.openapi.yaml`; the Agent
 
 | Repository | Visibility | Purpose | License |
 | --- | --- | --- | --- |
-| [NOMIVELA](https://github.com/axisrobo/NOMIVELA) | Source available | Core registry implementation (Go, PostgreSQL) | AGPL-3.0-or-later |
+| [NOMIVELA](https://github.com/axisvela/NOMIVELA) | Source available | Core registry implementation (Go, PostgreSQL) | AGPL-3.0-or-later |
 | **NOMIVELA-open** (this repository) | Public | Contracts, schemas, SDKs, CLI, examples, conformance fixtures, Core binaries | Apache-2.0 |
 | NOMIVELA-ee | Private | Enterprise features and internal design | Enterprise License |
 

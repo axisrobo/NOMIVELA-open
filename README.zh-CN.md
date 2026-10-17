@@ -32,7 +32,7 @@ NOMIVELA Open 是 NOMIVELA 的公开发布仓库，包含：
 - Go、Python、Java SDK（`sdk/`）
 - 命令行客户端（`cli/nomivela`）
 - 可运行的示例（`examples/`）
-- 可再分发的 NOMIVELA Core 二进制文件，见 [Releases](https://github.com/axisrobo/NOMIVELA-open/releases) 页面（`dist/`）
+- 可再分发的 NOMIVELA Core 二进制文件，见 [Releases](https://github.com/axisvela/NOMIVELA-open/releases) 页面（`dist/`）
 
 本仓库不包含 Core 源码、企业版（Enterprise Edition）代码、内部设计文档或任何凭据。
 
@@ -42,7 +42,7 @@ NOMIVELA Open 是 NOMIVELA 的公开发布仓库，包含：
 
 | 仓库 | 可见性 | 用途 | 许可证 |
 | --- | --- | --- | --- |
-| [NOMIVELA](https://github.com/axisrobo/NOMIVELA) | 源码可见 | Core 注册中心实现（Go、PostgreSQL） | AGPL-3.0-or-later |
+| [NOMIVELA](https://github.com/axisvela/NOMIVELA) | 源码可见 | Core 注册中心实现（Go、PostgreSQL） | AGPL-3.0-or-later |
 | **NOMIVELA-open**（本仓库） | 公开 | 契约、Schema、SDK、CLI、示例、一致性夹具、Core 二进制 | Apache-2.0 |
 | NOMIVELA-ee | 私有 | 企业版能力与内部设计 | Enterprise License |
 

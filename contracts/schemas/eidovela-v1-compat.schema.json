@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/axisrobo/nomivela-open/contracts/schemas/eidovela-v1-compat.schema.json",
+  "$id": "https://github.com/axisvela/nomivela-open/contracts/schemas/eidovela-v1-compat.schema.json",
   "title": "NOMIVELA EIDOVELA v1 compatibility projection",
   "type": "object",
   "$defs": {

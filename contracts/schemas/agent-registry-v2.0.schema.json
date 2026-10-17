@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/axisrobo/nomivela-open/contracts/schemas/agent-registry-v2.0.schema.json",
+  "$id": "https://github.com/axisvela/nomivela-open/contracts/schemas/agent-registry-v2.0.schema.json",
   "title": "NOMIVELA Agent Registry v1.0",
   "type": "object",
   "$defs": {

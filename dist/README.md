@@ -1,12 +1,12 @@
 # NOMIVELA Binaries
 
 Prebuilt NOMIVELA Core binaries are published on the
-[Releases](https://github.com/axisrobo/NOMIVELA-open/releases) page of this
+[Releases](https://github.com/axisvela/NOMIVELA-open/releases) page of this
 repository. Each release tag (`v0.1.0`, `v0.5.0`, `v1.0.0`, `v1.1.0`, ...)
 contains the Core commands for linux, darwin, and windows on amd64 and arm64.
 
 The binaries are built from the AGPL-3.0
-[NOMIVELA](https://github.com/axisrobo/NOMIVELA) core repository with
+[NOMIVELA](https://github.com/axisvela/NOMIVELA) core repository with
 `scripts/release.ps1`, which injects the build version and produces
 `SHA256SUMS`, a release manifest, and a CycloneDX SBOM. They remain subject to
 AGPL-3.0.
